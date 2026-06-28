@@ -1,11 +1,7 @@
 export { GhostButton } from "./GhostButton";
-export { LightButton } from "./LightButton";
-export type { LightButtonProps } from "./LightButton";
-export { AirButton } from "./AirButton";
-export { MacaronButton } from "./MacaronButton";
-export type { MacaronButtonProps } from "./MacaronButton";
+export { CardButton } from "./CardButton";
+export type { CardButtonProps } from "./CardButton";
 export { Button } from "./Button";
-export { DangerButton } from "./DangerButton";
 export { IconButton } from "./IconButton";
 export { DashedButton } from "./DashedButton";
 export { TextButton } from "./TextButton";

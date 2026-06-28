@@ -63,7 +63,7 @@ export const btnSquareCls: Record<CardButtonSize, string> = {
 	lg: "p-2.5 rounded-xl",
 };
 
-// Used by Button and DangerButton (includes gap, unlike btnSizeCls)
+// Used by Button (includes gap, unlike btnSizeCls)
 export const sizeCls = {
 	sm: "px-3 py-1.5 text-xs rounded-lg gap-1.5",
 	md: "px-4 py-2.5 text-sm rounded-xl gap-2",

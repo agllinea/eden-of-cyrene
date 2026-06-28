@@ -1,5 +1,5 @@
 import { cn, cls, sizeCls } from "./tokens";
-import { MacaronButton } from "./MacaronButton";
+import { CardButton } from "./CardButton";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
@@ -9,8 +9,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	fullWidth?: boolean;
 }
 
-const variantCls: Record<ButtonVariant, string> = {
-	primary:   cls.btnFill,
+const variantCls: Record<Exclude<ButtonVariant, "primary">, string> = {
 	secondary: cls.btnSoft,
 	ghost:     cls.btnGhost,
 	danger:    cls.btnDanger,
@@ -26,9 +25,9 @@ export function Button({
 }: ButtonProps) {
 	if (variant === "primary") {
 		return (
-			<MacaronButton {...props} size={size} fullWidth={fullWidth} className={className}>
+			<CardButton {...props} size={size} fullWidth={fullWidth} className={className}>
 				{children}
-			</MacaronButton>
+			</CardButton>
 		);
 	}
 

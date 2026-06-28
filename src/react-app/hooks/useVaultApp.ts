@@ -455,3 +455,5 @@ export function useVaultApp() {
 		visibleEntries,
 	};
 }
+
+export type VaultApp = ReturnType<typeof useVaultApp>;

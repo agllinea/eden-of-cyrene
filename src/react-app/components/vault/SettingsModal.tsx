@@ -13,8 +13,7 @@ import {
     ModalFooter,
     SectionLabel,
     cn,
-    LightButton,
-    MacaronButton,
+    CardButton,
     FloatingInput,
     FloatingPasswordInput,
     IconButton,
@@ -156,14 +155,14 @@ export default function SettingsModal({
                 {/* Download */}
                 <div>
                     <SectionLabel>导出</SectionLabel>
-                    <MacaronButton
+                    <CardButton
                         onClick={() => void handleDownload()}
                         disabled={downloading}
                         fullWidth
                     >
                         <Download size={15} />
                         {downloading ? "下载中…" : "下载 Vault 文件"}
-                    </MacaronButton>
+                    </CardButton>
                 </div>
 
                 {/* Encryption */}
@@ -173,25 +172,25 @@ export default function SettingsModal({
                     <div className="flex gap-2 mb-4">
                         {isEncrypted ? (
                             <>
-                                <MacaronButton onClick={enableEncryption} fullWidth>
+                                <CardButton onClick={enableEncryption} fullWidth>
                                     <Shield size={15} />
                                     已加密
-                                </MacaronButton>
-                                <LightButton onClick={disableEncryption} fullWidth>
+                                </CardButton>
+                                <CardButton variant="light" onClick={disableEncryption} fullWidth>
                                     <ShieldOff size={15} />
                                     无加密
-                                </LightButton>
+                                </CardButton>
                             </>
                         ) : (
                             <>
-                                <LightButton onClick={enableEncryption} fullWidth>
+                                <CardButton variant="light" onClick={enableEncryption} fullWidth>
                                     <Shield size={15} />
                                     已加密
-                                </LightButton>
-                                <MacaronButton onClick={disableEncryption} fullWidth>
+                                </CardButton>
+                                <CardButton onClick={disableEncryption} fullWidth>
                                     <ShieldOff size={15} />
                                     无加密
-                                </MacaronButton>
+                                </CardButton>
                             </>
                         )}
                     </div>

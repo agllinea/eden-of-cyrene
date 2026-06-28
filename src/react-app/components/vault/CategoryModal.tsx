@@ -2,7 +2,7 @@ import { Save, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 import type { CategoryDef } from "../../domain/types";
-import { Input, Modal, ModalHeader, ModalBody, ModalFooter, SectionLabel, cn, MacaronButton, GhostButton, IconButton, DashedButton } from "../ui";
+import { Input, Modal, ModalHeader, ModalBody, ModalFooter, SectionLabel, cn, CardButton, GhostButton, IconButton, DashedButton } from "../ui";
 import { CategoryIcon, ICON_LIST } from "./CategoryIcon";
 
 // Max size for uploaded images (bytes). Base64 overhead adds ~33%.
@@ -141,9 +141,9 @@ export default function CategoryModal({
 				<GhostButton onClick={onClose}>
 					取消
 				</GhostButton>
-				<MacaronButton onClick={handleSave} disabled={!canSave} icon={<Save size={15}/>}>
+				<CardButton onClick={handleSave} disabled={!canSave} icon={<Save size={15}/>}>
 					保存
-				</MacaronButton>
+				</CardButton>
 			</ModalFooter>
 
 			<input

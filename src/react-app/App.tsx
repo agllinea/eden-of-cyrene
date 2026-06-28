@@ -1,66 +1,35 @@
-// src/App.tsx
+import { useEffect } from "react";
+import { useVaultApp } from "./hooks/useVaultApp";
+import AuthFlow from "./components/auth/AuthFlow";
+import VaultPage from "./components/vault/VaultPage";
+import { ToastProvider, useToast } from "./components/Toaster";
 
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import cloudflareLogo from "./assets/Cloudflare_Logo.svg";
-import honoLogo from "./assets/hono.svg";
-import "./App.css";
+// Status strings that indicate a UI phase/instruction, not an action result
+const SILENT_STATUSES = new Set([
+	"请选择 Vault。",
+	"请输入密码解锁。",
+	"配置新 Vault。",
+	"可以设置安全问题。",
+]);
 
-function App() {
-	const [count, setCount] = useState(0);
-	const [name, setName] = useState("unknown");
+function AppContent() {
+	const app = useVaultApp();
+	const { addToast } = useToast();
 
-	return (
-		<>
-			<div>
-				<a href="https://vite.dev" target="_blank">
-					<img src={viteLogo} className="logo" alt="Vite logo" />
-				</a>
-				<a href="https://react.dev" target="_blank">
-					<img src={reactLogo} className="logo react" alt="React logo" />
-				</a>
-				<a href="https://hono.dev/" target="_blank">
-					<img src={honoLogo} className="logo cloudflare" alt="Hono logo" />
-				</a>
-				<a href="https://workers.cloudflare.com/" target="_blank">
-					<img
-						src={cloudflareLogo}
-						className="logo cloudflare"
-						alt="Cloudflare logo"
-					/>
-				</a>
-			</div>
-			<h1>Vite + React + Hono + Cloudflare</h1>
-			<div className="card">
-				<button
-					onClick={() => setCount((count) => count + 1)}
-					aria-label="increment"
-				>
-					count is {count}
-				</button>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<div className="card">
-				<button
-					onClick={() => {
-						fetch("/api/")
-							.then((res) => res.json() as Promise<{ name: string }>)
-							.then((data) => setName(data.name));
-					}}
-					aria-label="get name"
-				>
-					Name from API is: {name}
-				</button>
-				<p>
-					Edit <code>worker/index.ts</code> to change the name
-				</p>
-			</div>
-			<p className="read-the-docs">Click on the logos to learn more</p>
-		</>
-	);
+	useEffect(() => {
+		if (!app.status || SILENT_STATUSES.has(app.status)) return;
+		const isError = /失败|错误|无法/.test(app.status);
+		addToast(app.status, isError ? "error" : "success");
+	}, [app.status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+	if (app.phase !== "ready") return <AuthFlow app={app} />;
+	return <VaultPage app={app} />;
 }
 
-export default App;
+export default function App() {
+	return (
+		<ToastProvider>
+			<AppContent />
+		</ToastProvider>
+	);
+}

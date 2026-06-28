@@ -1,68 +1,49 @@
-:root {
-	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-	line-height: 1.5;
-	font-weight: 400;
+@import "tailwindcss";
 
-	color-scheme: light dark;
-	color: rgba(255, 255, 255, 0.87);
-	background-color: #242424;
+@theme {
+  /* 粉紫 (Pink Purple) — primary palette */
+  --color-pw-50:  #fdf8fe;
+  --color-pw-100: #f8effe;
+  --color-pw-200: #ffd1e8;
+  --color-pw-300: #f2b5ff;
+  --color-pw-400: #c9a7ff;
+  --color-pw-500: #9970f0;
+  --color-pw-600: #7851d8;
+  --color-pw-700: #5a37b8;
+  --color-pw-800: #3e2298;
+  --color-pw-900: #261278;
 
-	font-synthesis: none;
-	text-rendering: optimizeLegibility;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-a {
-	font-weight: 500;
-	color: #646cff;
-	text-decoration: inherit;
-}
-a:hover {
-	color: #535bf2;
-}
-
-body {
-	margin: 0;
-	display: flex;
-	place-items: center;
-	min-width: 320px;
-	min-height: 100vh;
+  /* 浅青 (Light Cyan) — accent palette */
+  --color-ac-50:  #f0fafa;
+  --color-ac-100: #d5f2f3;
+  --color-ac-200: #a8e6e8;
+  --color-ac-300: #70d4d8;
+  --color-ac-400: #3cbfc5;
+  --color-ac-500: #1fa9b0;
+  --color-ac-600: #158890;
 }
 
-h1 {
-	font-size: 3.2em;
-	line-height: 1.1;
-}
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
 
-button {
-	border-radius: 8px;
-	border: 1px solid transparent;
-	padding: 0.6em 1.2em;
-	font-size: 1em;
-	font-weight: 500;
-	font-family: inherit;
-	background-color: #1a1a1a;
-	cursor: pointer;
-	transition: border-color 0.25s;
-}
-button:hover {
-	border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-	outline: 4px auto -webkit-focus-ring-color;
-}
+  body {
+    @apply bg-pw-50 text-slate-800 antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    min-height: 100dvh;
+  }
 
-@media (prefers-color-scheme: light) {
-	:root {
-		color: #213547;
-		background-color: #ffffff;
-	}
-	a:hover {
-		color: #747bff;
-	}
-	button {
-		background-color: #f9f9f9;
-	}
+  #root {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Subtle powder-blue scrollbar */
+  ::-webkit-scrollbar        { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track  { background: transparent; }
+  ::-webkit-scrollbar-thumb  { @apply bg-pw-200 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-pw-300; }
 }

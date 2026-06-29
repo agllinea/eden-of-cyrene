@@ -1,9 +1,10 @@
 import { Save, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
-import type { CategoryDef } from "../../domain/types";
+import type { CategoryDef } from "@/domain/types";
+import { useI18n } from "@/i18n";
 import { Input, Modal, ModalHeader, ModalBody, ModalFooter, SectionLabel, cn, CardButton, GhostButton, IconButton, DashedButton } from "../ui";
-import { CategoryIcon, ICON_LIST } from "./CategoryIcon";
+import { ICON_LIST } from "./CategoryIcon";
 
 // Max size for uploaded images (bytes). Base64 overhead adds ~33%.
 const MAX_IMAGE_BYTES = 200 * 1024; // 200 KB
@@ -21,6 +22,7 @@ export default function CategoryModal({
 	onSave,
 	onClose,
 }: CategoryModalProps) {
+	const { t } = useI18n();
 	const [def, setDef] = useState<CategoryDef>(initialDef);
 	const [uploadError, setUploadError] = useState<string | null>(null);
 	const fileRef = useRef<HTMLInputElement>(null);
@@ -37,7 +39,7 @@ export default function CategoryModal({
 
 		if (file.size > MAX_IMAGE_BYTES) {
 			setUploadError(
-				`图片太大（${(file.size / 1024).toFixed(0)} KB），请上传 200 KB 以内的图片。`,
+				t("categoryModal.tooLarge", { size: (file.size / 1024).toFixed(0) }),
 			);
 			return;
 		}
@@ -61,15 +63,15 @@ export default function CategoryModal({
 	return (
 		<Modal isOpen onClose={onClose} size="md">
 			<ModalHeader onClose={onClose}>
-				{isNew ? "新建类别" : "编辑图标"}
+				{isNew ? t("categoryModal.new") : t("categoryModal.editIcon")}
 			</ModalHeader>
 
 			<ModalBody>
 				{isNew && (
 					<>
-						<SectionLabel>类别名</SectionLabel>
+						<SectionLabel>{t("categoryModal.name")}</SectionLabel>
 						<Input
-							placeholder="例：工作"
+							placeholder={t("categoryModal.namePlaceholder")}
 							autoFocus
 							value={def.name}
 							onChange={(e) => setDef((d) => ({ ...d, name: e.target.value }))}
@@ -79,7 +81,7 @@ export default function CategoryModal({
 				)}
 
 				<div>
-					<SectionLabel>常用图标</SectionLabel>
+					<SectionLabel>{t("categoryModal.commonIcons")}</SectionLabel>
 					<div className="grid grid-cols-7 gap-1.5">
 						{ICON_LIST.map((entry) => {
 							const active = def.icon === entry.name && !def.imageDataUrl;
@@ -87,7 +89,7 @@ export default function CategoryModal({
 								<button
 									key={entry.name}
 									type="button"
-									title={entry.label}
+									title={t(`icon.${entry.name}`)}
 									onClick={() => selectIcon(entry.name)}
 									className={cn(
 										"w-full aspect-square rounded-xl flex items-center justify-center transition-all duration-150",
@@ -105,7 +107,7 @@ export default function CategoryModal({
 
 				{/* Image upload */}
 				<div>
-					<SectionLabel>自定义图片</SectionLabel>
+					<SectionLabel>{t("categoryModal.customImage")}</SectionLabel>
 					<div className="space-y-2">
 						{def.imageDataUrl && (
 							<div className="flex items-center gap-3 px-3 py-2.5 bg-pw-50 rounded-xl border border-pw-100">
@@ -114,7 +116,7 @@ export default function CategoryModal({
 									alt=""
 									className="w-8 h-8 object-cover rounded-lg shrink-0"
 								/>
-								<span className="flex-1 text-sm text-slate-600 truncate">已上传自定义图片</span>
+								<span className="flex-1 text-sm text-slate-600 truncate">{t("categoryModal.uploaded")}</span>
 								<IconButton variant="del" onClick={clearIcon}>
 									<X size={14} />
 								</IconButton>
@@ -123,11 +125,11 @@ export default function CategoryModal({
 
 						<DashedButton onClick={() => fileRef.current?.click()}>
 							<Upload size={14} />
-							{def.imageDataUrl ? "重新上传" : "上传图片"}
+							{def.imageDataUrl ? t("categoryModal.reupload") : t("categoryModal.upload")}
 						</DashedButton>
 
 						<p className="text-xs text-slate-400 text-center">
-							支持 PNG / JPG / SVG · 最大 200 KB
+							{t("categoryModal.imageHint")}
 						</p>
 
 						{uploadError && (
@@ -139,10 +141,10 @@ export default function CategoryModal({
 
 			<ModalFooter>
 				<GhostButton onClick={onClose}>
-					取消
+					{t("common.cancel")}
 				</GhostButton>
 				<CardButton onClick={handleSave} disabled={!canSave} icon={<Save size={15}/>}>
-					保存
+					{t("common.save")}
 				</CardButton>
 			</ModalFooter>
 

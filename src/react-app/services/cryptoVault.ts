@@ -5,7 +5,7 @@ import type {
 	KeySlot,
 	Vault,
 	VaultFile,
-} from "../domain/types";
+} from "@/domain/types";
 
 const iterations = 210_000;
 const encoder = new TextEncoder();
@@ -147,17 +147,32 @@ export function parseVaultFile(text: string) {
 	return assertVaultFile(JSON.parse(text));
 }
 
-export async function serializeVaultFile(
-	vault: Vault,
-	settings: EncryptionSettings,
-) {
-	const nextVault = {
-		...vault,
-		updatedAt: new Date().toISOString(),
-	};
+// ── Session crypto ──────────────────────────────────────────────────────────
+//
+// PBKDF2 (210k iterations per key slot) is the expensive part of encryption.
+// Running it on every autosave would jank the UI, so we derive the wrapping
+// keys ONCE and keep the resulting `SessionCrypto` for the lifetime of the
+// session. Repeated saves only re-run the cheap AES-GCM vault encryption.
+//
+// The session is (re)built only when encryption settings change, or adopted
+// directly from a freshly unlocked file (reusing its slots — zero PBKDF2).
 
+// `epoch` is a random id for the current vault key. The split attachment cache
+// uses it to detect key rotation (settings change) and re-seal accordingly.
+export type SessionCrypto =
+	| { mode: "none"; epoch: string }
+	| { mode: "encrypted"; epoch: string; vaultKey: CryptoKey; keySlots: KeySlot[] };
+
+export function noEncryptionSession(): SessionCrypto {
+	return { mode: "none", epoch: crypto.randomUUID() };
+}
+
+/** Expensive: derives wrapping keys via PBKDF2. Call on settings change only. */
+export async function createSession(
+	settings: EncryptionSettings,
+): Promise<SessionCrypto> {
 	if (settings.mode === "none") {
-		return JSON.stringify(nextVault, null, 2);
+		return noEncryptionSession();
 	}
 
 	if (!settings.password.trim() && settings.securityQuestions.length === 0) {
@@ -172,9 +187,7 @@ export async function serializeVaultFile(
 	const keySlots: KeySlot[] = [];
 
 	if (settings.password.trim()) {
-		keySlots.push(
-			await createKeySlot("password", settings.password, vaultKey),
-		);
+		keySlots.push(await createKeySlot("password", settings.password, vaultKey));
 	}
 
 	const validQuestions = settings.securityQuestions.filter(
@@ -192,12 +205,42 @@ export async function serializeVaultFile(
 		);
 	}
 
+	return { mode: "encrypted", epoch: crypto.randomUUID(), vaultKey, keySlots };
+}
+
+/** Cheap: reuses the slots already present on a just-unlocked file. */
+export function sessionFromUnlocked(
+	file: EncryptedVault,
+	vaultKey: CryptoKey,
+): SessionCrypto {
+	return {
+		mode: "encrypted",
+		epoch: crypto.randomUUID(),
+		vaultKey,
+		keySlots: file.encryption.keySlots,
+	};
+}
+
+/** Cheap: encrypts the vault with the cached session key (no PBKDF2). */
+export async function serializeVaultWithSession(
+	vault: Vault,
+	session: SessionCrypto,
+): Promise<string> {
+	const nextVault: Vault = {
+		...vault,
+		updatedAt: new Date().toISOString(),
+	};
+
+	if (session.mode === "none") {
+		return JSON.stringify(nextVault, null, 2);
+	}
+
 	const encrypted: EncryptedVault = {
 		kind: "EncryptedVault",
 		formatVersion: 1,
 		encryption: {
-			vault: await encryptText(JSON.stringify(nextVault), vaultKey),
-			keySlots,
+			vault: await encryptText(JSON.stringify(nextVault), session.vaultKey),
+			keySlots: session.keySlots,
 		},
 		createdAt: vault.createdAt,
 		updatedAt: nextVault.updatedAt,
@@ -206,11 +249,49 @@ export async function serializeVaultFile(
 	return JSON.stringify(encrypted, null, 2);
 }
 
+// ── Attachment sealing (for the split browser cache) ──────────────────────────
+//
+// Cached attachment blobs are stored separately from the main document so the
+// autosave hot path doesn't re-write them. They are encrypted under the same
+// session key when the vault is encrypted, and stored as plain data otherwise.
+
+export type SealedAttachment =
+	| { enc: false; data: string }
+	| { enc: true; payload: EncryptedPayload };
+
+export async function sealAttachment(
+	dataUrl: string,
+	session: SessionCrypto,
+): Promise<SealedAttachment> {
+	if (session.mode === "none") {
+		return { enc: false, data: dataUrl };
+	}
+	return { enc: true, payload: await encryptText(dataUrl, session.vaultKey) };
+}
+
+export async function openAttachment(
+	sealed: SealedAttachment,
+	session: SessionCrypto,
+): Promise<string> {
+	if (!sealed.enc) {
+		return sealed.data;
+	}
+	if (session.mode === "none") {
+		throw new Error("缺少解密附件所需的密钥。");
+	}
+	return decryptText(sealed.payload, session.vaultKey);
+}
+
 export function isEncryptedVault(file: VaultFile): file is EncryptedVault {
 	return file.kind === "EncryptedVault";
 }
 
-export async function unlockWithPassword(file: EncryptedVault, password: string) {
+export type UnlockResult = { vault: Vault; vaultKey: CryptoKey };
+
+export async function unlockWithPassword(
+	file: EncryptedVault,
+	password: string,
+): Promise<UnlockResult> {
 	const slot = file.encryption.keySlots.find((item) => item.type === "password");
 	if (!slot) {
 		throw new Error("这个文件没有密码解锁方式。");
@@ -219,7 +300,10 @@ export async function unlockWithPassword(file: EncryptedVault, password: string)
 	return unlockWithSlot(file, slot, password);
 }
 
-export async function unlockWithAnswers(file: EncryptedVault, answers: string[]) {
+export async function unlockWithAnswers(
+	file: EncryptedVault,
+	answers: string[],
+): Promise<UnlockResult> {
 	const slot = file.encryption.keySlots.find(
 		(item) => item.type === "securityQuestions",
 	);
@@ -234,7 +318,7 @@ async function unlockWithSlot(
 	file: EncryptedVault,
 	slot: KeySlot,
 	passphrase: string,
-) {
+): Promise<UnlockResult> {
 	try {
 		const wrappingKey = await deriveWrappingKey(
 			passphrase,
@@ -249,7 +333,7 @@ async function unlockWithSlot(
 			throw new Error("解锁后的内容不是 Vault。");
 		}
 
-		return vault;
+		return { vault, vaultKey };
 	} catch {
 		throw new Error("解锁失败，请检查输入。");
 	}

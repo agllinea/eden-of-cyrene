@@ -107,7 +107,7 @@ export function createEmptyEntry(category: string | null = null): Entry {
 
 	return {
 		id: crypto.randomUUID(),
-		name: "新密码",
+		name: "",
 		loginName: "",
 		password: "",
 		notes: "",

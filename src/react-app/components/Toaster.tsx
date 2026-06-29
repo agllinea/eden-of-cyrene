@@ -126,7 +126,7 @@ function ToasterUI({
 							variant="x"
 							onClick={() => onDismiss(toast.id)}
 							className="shrink-0 w-5 h-5 flex items-center justify-center rounded"
-							aria-label="关闭"
+							aria-label="Close"
 						>
 							<X size={13} />
 						</IconButton>

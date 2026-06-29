@@ -1,10 +1,12 @@
 import { ChevronLeft } from "lucide-react";
 import { motion } from "motion/react";
 
+import { useI18n } from "@/i18n";
 import { CardButton, FloatingInput, FloatingPasswordInput, GhostButton } from "../ui";
 import { App, Card, cardMotion } from "./shared";
 
 export function SetupPasswordCard({ app }: { app: App }) {
+	const { t } = useI18n();
 	return (
 		<motion.div {...cardMotion}>
 			<Card>
@@ -12,19 +14,19 @@ export function SetupPasswordCard({ app }: { app: App }) {
 					<GhostButton onClick={app.goBackFromSetupPassword} className="p-2">
 						<ChevronLeft size={18} strokeWidth={2.5} />
 					</GhostButton>
-					<h2 className="text-base font-semibold text-slate-700">新建 Vault</h2>
+					<h2 className="text-base font-semibold text-slate-700">{t("setup.title")}</h2>
 				</div>
 
 				<div className="space-y-3">
 					<FloatingInput
-						label="Vault 名称"
+						label={t("setup.vaultName")}
 						value={app.setupVaultName}
 						autoFocus
 						onChange={(e) => app.setSetupVaultName(e.target.value)}
 						onKeyDown={(e) => e.key === "Enter" && app.continueWithPassword()}
 					/>
 					<FloatingPasswordInput
-						label="密码"
+						label={t("setup.password")}
 						value={app.setupPassword}
 						onChange={(e) => app.setSetupPassword(e.target.value)}
 						onKeyDown={(e) => e.key === "Enter" && app.continueWithPassword()}
@@ -33,11 +35,11 @@ export function SetupPasswordCard({ app }: { app: App }) {
 
 				<div className="mt-8 space-y-2">
 					<CardButton fullWidth onClick={app.continueWithPassword}>
-						下一步
+						{t("setup.next")}
 					</CardButton>
 
 					<GhostButton onClick={app.createVaultWithoutPassword} fullWidth className="py-2 text-sm justify-center">
-						不使用密码
+						{t("setup.noPassword")}
 					</GhostButton>
 				</div>
 			</Card>

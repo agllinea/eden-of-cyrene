@@ -1,7 +1,8 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
-import type { VaultApp } from "../../hooks/useVaultApp";
+import type { VaultApp } from "@/hooks/useVaultApp";
+import { useI18n } from "@/i18n";
 import { CardButton } from "../ui";
 import EntryModal from "./EntryModal";
 import { EntryTable } from "./EntryTable";
@@ -10,6 +11,7 @@ import { VaultHeader } from "./VaultHeader";
 import { VaultSidebar } from "./VaultSidebar";
 
 export default function VaultPage({ app }: { app: VaultApp }) {
+	const { t } = useI18n();
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 
 	const isNewEntry =
@@ -34,7 +36,7 @@ export default function VaultPage({ app }: { app: VaultApp }) {
 					<div className="absolute bottom-7 right-7">
 						<CardButton
 							onClick={app.openNewEntry}
-							aria-label="新建密码"
+							aria-label={t("fab.newEntry")}
 							icon={<Plus size={24} strokeWidth={2} />}
 							className="p-0! w-13 h-13 rounded-2xl shadow-lg shadow-ac-300/20"
 						/>
@@ -60,11 +62,10 @@ export default function VaultPage({ app }: { app: VaultApp }) {
 					settings={app.settings}
 					cacheEnabled={app.cacheEnabled}
 					cacheSaving={app.cacheSaving}
-					cacheStatus={app.cacheStatus}
+					cacheState={app.cacheState}
 					onSetCacheEnabled={app.setCacheEnabled}
 					onUpdateVaultName={app.updateVaultName}
-					onUpdateSettings={app.setSettings}
-					onUpdateSecurityQuestion={app.updateSecurityQuestion}
+					onApplySettings={app.applySettings}
 					onDownload={app.downloadVault}
 					onClose={() => app.setSettingsOpen(false)}
 				/>

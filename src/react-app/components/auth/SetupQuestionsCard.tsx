@@ -2,11 +2,13 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
-import { createBlankSecurityQuestion } from "../../domain/types";
+import { createBlankSecurityQuestion } from "@/domain/types";
+import { useI18n } from "@/i18n";
 import { Button, CardButton, FloatingInput, FloatingPasswordInput, GhostButton } from "../ui";
 import { App, Card, cardMotion } from "./shared";
 
 export function SetupQuestionsCard({ app }: { app: App }) {
+	const { t } = useI18n();
 	const [currentIdx, setCurrentIdx] = useState(0);
 	const [dir, setDir] = useState<1 | -1>(1);
 	const total = app.setupQuestions.length;
@@ -28,7 +30,7 @@ export function SetupQuestionsCard({ app }: { app: App }) {
 					<GhostButton onClick={app.goBackFromSetupQuestions} className="p-2 shrink-0">
 						<ChevronLeft size={18} strokeWidth={2.5} />
 					</GhostButton>
-					<h2 className="text-base font-semibold text-slate-700 flex-1">设置安全问题（可选）</h2>
+					<h2 className="text-base font-semibold text-slate-700 flex-1">{t("setupQ.title")}</h2>
 					<div className="flex items-center gap-0.5 shrink-0">
 						<GhostButton onClick={goPrev} disabled={currentIdx === 0} className="p-1.5">
 							<ChevronLeft size={14} />
@@ -52,12 +54,12 @@ export function SetupQuestionsCard({ app }: { app: App }) {
 							className="space-y-3"
 						>
 							<FloatingInput
-								label={`问题 ${currentIdx + 1}`}
+								label={t("setupQ.question", { n: currentIdx + 1 })}
 								value={item.question}
 								onChange={(e) => app.updateSetupQuestion(item.id, "question", e.target.value)}
 							/>
 							<FloatingPasswordInput
-								label={`回答 ${currentIdx + 1}`}
+								label={t("setupQ.answer", { n: currentIdx + 1 })}
 								value={item.answer}
 								onChange={(e) => app.updateSetupQuestion(item.id, "answer", e.target.value)}
 							/>
@@ -66,16 +68,16 @@ export function SetupQuestionsCard({ app }: { app: App }) {
 				</div>
 
 				<CardButton variant="air" onClick={addQuestion} icon={<Plus size={14} />} fullWidth className="mt-3">
-					添加安全问题
+					{t("setupQ.add")}
 				</CardButton>
 
 				{/* Footer actions */}
 				<div className="mt-6 space-y-2">
 					<Button fullWidth onClick={() => app.finishSecurityQuestions(true)}>
-						保存并进入 Vault
+						{t("setupQ.saveEnter")}
 					</Button>
 					<GhostButton onClick={() => app.finishSecurityQuestions(false)} fullWidth className="py-2 text-sm justify-center">
-						跳过，稍后在设置中配置
+						{t("setupQ.skip")}
 					</GhostButton>
 				</div>
 			</Card>

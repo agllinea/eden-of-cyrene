@@ -1,7 +1,8 @@
 import { Paperclip, X } from "lucide-react";
 import { useRef } from "react";
 
-import type { Entry } from "../../domain/types";
+import type { Entry } from "@/domain/types";
+import { useI18n } from "@/i18n";
 import { DashedButton, IconButton } from "../ui";
 
 function formatBytes(bytes: number) {
@@ -17,6 +18,7 @@ interface AttachmentListProps {
 }
 
 export function AttachmentList({ attachments, onAdd, onRemove }: AttachmentListProps) {
+    const { t } = useI18n();
     const fileRef = useRef<HTMLInputElement>(null);
 
     return (
@@ -43,7 +45,7 @@ export function AttachmentList({ attachments, onAdd, onRemove }: AttachmentListP
 
             <DashedButton onClick={() => fileRef.current?.click()}>
                 <Paperclip size={13} />
-                添加附件
+                {t("attachment.add")}
             </DashedButton>
 
             <input

@@ -1,0 +1,201 @@
+// English dictionary. This file is the canonical key set: `MessageKey` is
+// derived from it, and every other locale must provide the same keys.
+export const en = {
+	// ── Common ──
+	"common.cancel": "Cancel",
+	"common.save": "Save",
+	"common.confirm": "Confirm",
+	"common.delete": "Delete",
+	"common.close": "Close",
+
+	// ── Login ──
+	"login.subtitle": "A secure, elegant password manager",
+	"login.openFile.title": "Open a Vault file",
+	"login.openFile.text": "Open a local .eden.json file",
+	"login.useCache.title": "Use browser cache",
+	"login.newVault.title": "New Vault",
+	"login.newVault.text": "Start from scratch",
+
+	// ── Setup: password ──
+	"setup.title": "New Vault",
+	"setup.vaultName": "Vault name",
+	"setup.password": "Password",
+	"setup.next": "Next",
+	"setup.noPassword": "No password",
+
+	// ── Setup: security questions ──
+	"setupQ.title": "Security questions (optional)",
+	"setupQ.question": "Question {n}",
+	"setupQ.answer": "Answer {n}",
+	"setupQ.add": "Add security question",
+	"setupQ.saveEnter": "Save and open Vault",
+	"setupQ.skip": "Skip — configure later in settings",
+
+	// ── Unlock ──
+	"unlock.title": "Unlock Vault",
+	"unlock.password": "Password",
+	"unlock.answer": "Answer",
+	"unlock.questionLabel": "Question {n}: {q}",
+	"unlock.unlocking": "Unlocking…",
+	"unlock.unlock": "Unlock",
+	"unlock.useQuestions": "Unlock with security questions",
+	"unlock.usePassword": "Unlock with password",
+
+	// ── Entry table ──
+	"table.empty.title": "No passwords yet",
+	"table.empty.hint": "Tap the + button to add one",
+	"table.noMatch": "No matching passwords",
+	"column.name": "Name",
+	"column.loginName": "Login",
+	"column.password": "Password",
+	"column.notes": "Notes",
+	"column.category": "Category",
+
+	// ── Vault page ──
+	"fab.newEntry": "New password",
+
+	// ── Entry modal ──
+	"entry.new": "New password",
+	"entry.edit": "Edit password",
+	"entry.name": "Name",
+	"entry.namePlaceholder": "e.g. GitHub",
+	"entry.loginName": "Login / email",
+	"entry.loginPlaceholder": "user@example.com",
+	"entry.password": "Password",
+	"entry.category": "Category",
+	"entry.notes": "Notes",
+	"entry.notesPlaceholder": "Optional notes…",
+	"entry.customProps": "Custom properties",
+	"entry.attachments": "Attachments",
+	"entry.confirmDelete": "Delete this entry?",
+
+	// ── Category input ──
+	"categoryInput.placeholder": "Select or create a category…",
+	"categoryInput.create": "Create “{name}”",
+
+	// ── Category modal ──
+	"categoryModal.new": "New category",
+	"categoryModal.editIcon": "Edit icon",
+	"categoryModal.name": "Category name",
+	"categoryModal.namePlaceholder": "e.g. Work",
+	"categoryModal.commonIcons": "Common icons",
+	"categoryModal.customImage": "Custom image",
+	"categoryModal.uploaded": "Custom image uploaded",
+	"categoryModal.reupload": "Replace image",
+	"categoryModal.upload": "Upload image",
+	"categoryModal.imageHint": "PNG / JPG / SVG · max 200 KB",
+	"categoryModal.tooLarge": "Image too large ({size} KB). Please use one under 200 KB.",
+
+	// ── Attachments ──
+	"attachment.add": "Add attachment",
+
+	// ── Custom properties ──
+	"customProps.confirmDelete": "Delete “{key}”?",
+	"customProps.value": "Value",
+	"customProps.key": "Property name",
+	"customProps.add": "Add property",
+
+	// ── Sidebar ──
+	"sidebar.search": "Search…",
+	"sidebar.all": "All",
+	"sidebar.editIcon": "Edit icon",
+	"sidebar.newCategory": "New category",
+
+	// ── Settings ──
+	"settings.title": "Vault settings",
+	"settings.vaultName": "Vault name",
+	"settings.cache": "Browser cache",
+	"settings.autoSave": "Auto-save to browser",
+	"settings.export": "Export",
+	"settings.download": "Download Vault file",
+	"settings.downloading": "Downloading…",
+	"settings.encryption": "Encryption",
+	"settings.encrypted": "Encrypted",
+	"settings.noEncryption": "No encryption",
+	"settings.password": "Password",
+	"settings.passwordPlaceholder": "Enter a password",
+	"settings.securityQuestions": "Security questions",
+	"settings.questionN": "Security question {n}",
+	"settings.question": "Question {n}",
+	"settings.answer": "Answer {n}",
+	"settings.addQuestion": "Add security question",
+	"settings.save": "Save settings",
+	"settings.language": "Language",
+	"lang.zh": "中文",
+	"lang.en": "English",
+
+	// ── Cache state labels ──
+	"cache.idle": "Not saved yet",
+	"cache.none": "No browser cache",
+	"cache.unavailable": "Cannot read browser cache",
+	"cache.available": "Cached: {time}",
+	"cache.saving": "Saving…",
+	"cache.saved": "Saved to cache",
+	"cache.error": "Cache save failed",
+
+	// ── Status (toasts) ──
+	"status.saved": "Saved.",
+	"status.saveFailed": "Save failed.",
+	"status.fileLoaded": "File loaded.",
+	"status.openFailed": "Couldn't open the file.",
+	"status.cacheEmpty": "Browser cache is empty.",
+	"status.cacheLoaded": "Loaded from browser cache.",
+	"status.cacheReadFailed": "Couldn't read the cache.",
+	"status.unlocked": "Vault unlocked.",
+	"status.unlockFailed": "Unlock failed. Check your input.",
+	"status.vaultCreatedNoPassword": "Created a vault with no password.",
+	"status.passwordRequired": "Enter a password, or choose to continue without one.",
+	"status.vaultCreated": "Vault created.",
+	"status.entrySaved": "Entry saved.",
+	"status.entryDeleted": "Entry deleted.",
+	"status.downloaded": "Vault file downloaded.",
+	"status.downloadFailed": "Download failed.",
+
+	// ── Icon labels ──
+	"icon.Tag": "Tag",
+	"icon.Globe": "Website",
+	"icon.Shield": "Security",
+	"icon.Key": "Key",
+	"icon.Lock": "Lock",
+	"icon.User": "Account",
+	"icon.CreditCard": "Payment",
+	"icon.Wallet": "Wallet",
+	"icon.DollarSign": "Finance",
+	"icon.Mail": "Email",
+	"icon.Phone": "Phone",
+	"icon.MessageSquare": "Messages",
+	"icon.Home": "Home",
+	"icon.Building2": "Company",
+	"icon.Briefcase": "Work",
+	"icon.Folder": "Folder",
+	"icon.Cloud": "Cloud",
+	"icon.Server": "Server",
+	"icon.Database": "Database",
+	"icon.Monitor": "Computer",
+	"icon.Smartphone": "Mobile",
+	"icon.Wifi": "Network",
+	"icon.Code": "Dev",
+	"icon.Tv": "TV",
+	"icon.Film": "Film",
+	"icon.Music": "Music",
+	"icon.Headphones": "Audio",
+	"icon.Camera": "Camera",
+	"icon.Gamepad2": "Games",
+	"icon.GraduationCap": "Education",
+	"icon.BookOpen": "Reading",
+	"icon.Heart": "Personal",
+	"icon.Star": "Favorites",
+	"icon.Car": "Transport",
+	"icon.Plane": "Travel",
+	"icon.MapPin": "Map",
+	"icon.Coffee": "Life",
+	"icon.Gift": "Gifts",
+	"icon.ShoppingCart": "Cart",
+	"icon.ShoppingBag": "Shopping",
+	"icon.Zap": "Energy",
+
+	// ── Misc ──
+	"a11y.close": "Close",
+} as const;
+
+export type MessageKey = keyof typeof en;

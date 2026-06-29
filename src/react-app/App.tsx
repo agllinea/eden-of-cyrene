@@ -1,25 +1,21 @@
 import { useEffect } from "react";
-import { useVaultApp } from "./hooks/useVaultApp";
-import AuthFlow from "./components/auth/AuthFlow";
-import VaultPage from "./components/vault/VaultPage";
-import { ToastProvider, useToast } from "./components/Toaster";
-
-// Status strings that indicate a UI phase/instruction, not an action result
-const SILENT_STATUSES = new Set([
-	"请选择 Vault。",
-	"请输入密码解锁。",
-	"配置新 Vault。",
-	"可以设置安全问题。",
-]);
+import { useVaultApp } from "@/hooks/useVaultApp";
+import AuthFlow from "@/components/auth/AuthFlow";
+import VaultPage from "@/components/vault/VaultPage";
+import { ToastProvider, useToast } from "@/components/Toaster";
+import { useI18n } from "@/i18n";
 
 function AppContent() {
 	const app = useVaultApp();
 	const { addToast } = useToast();
+	const { t } = useI18n();
 
+	// Status is a typed code, so the toast tone comes from `tone` — never from
+	// pattern-matching display text.
 	useEffect(() => {
-		if (!app.status || SILENT_STATUSES.has(app.status)) return;
-		const isError = /失败|错误|无法/.test(app.status);
-		addToast(app.status, isError ? "error" : "success");
+		if (!app.status) return;
+		const tone = app.status.tone === "error" ? "error" : "success";
+		addToast(t(app.status.key, app.status.params), tone);
 	}, [app.status]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	if (app.phase !== "ready") return <AuthFlow app={app} />;

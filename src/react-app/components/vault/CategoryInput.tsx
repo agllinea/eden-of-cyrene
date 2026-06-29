@@ -1,7 +1,8 @@
 import { Check, Plus, Tag, X } from "lucide-react";
 import { useRef, useState } from "react";
 
-import type { CategoryDef } from "../../domain/types";
+import type { CategoryDef } from "@/domain/types";
+import { useI18n } from "@/i18n";
 import { cn, IconButton } from "../ui";
 import { CategoryIcon } from "./CategoryIcon";
 
@@ -22,6 +23,7 @@ export function CategoryInput({
     categoryOptions,
     onChange,
 }: CategoryInputProps) {
+    const { t } = useI18n();
     const [inputValue, setInputValue] = useState(category ?? "");
     const [open, setOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -81,7 +83,7 @@ export function CategoryInput({
                     <input
                         ref={inputRef}
                         value={inputValue}
-                        placeholder="选择或新建类别…"
+                        placeholder={t("categoryInput.placeholder")}
                         onChange={(e) => {
                             setInputValue(e.target.value);
                             setOpen(true);
@@ -156,7 +158,7 @@ export function CategoryInput({
                                 className="w-full px-4 py-2.5 text-sm text-left text-pw-600 hover:bg-pw-50 border-t border-pw-100 flex items-center gap-2 transition-colors"
                             >
                                 <Plus size={13} className="shrink-0" />
-                                新建 &ldquo;{inputValue.trim()}&rdquo;
+                                {t("categoryInput.create", { name: inputValue.trim() })}
                             </button>
                         )}
                     </div>

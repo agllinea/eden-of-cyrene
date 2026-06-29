@@ -1,12 +1,25 @@
 import { Eye, EyeOff, Pencil, Plus } from "lucide-react";
 import { useState } from "react";
 
-import type { CategoryDef, Entry } from "../../domain/types";
-import type { VaultApp } from "../../hooks/useVaultApp";
-import { cn, IconButton } from "../ui";
+import type { CategoryDef, Entry } from "@/domain/types";
+import type { VaultApp } from "@/hooks/useVaultApp";
+import { FIXED_COLUMNS, type FixedColumn } from "@/hooks/useVaultUI";
+import { useI18n, type TFunction } from "@/i18n";
+import { IconButton } from "../ui";
 import { CategoryIcon } from "./CategoryIcon";
 
 type App = VaultApp;
+
+const FIXED = new Set<string>(FIXED_COLUMNS);
+
+function isFixedColumn(col: string): col is FixedColumn {
+	return FIXED.has(col);
+}
+
+// Localized header for a column key; custom-property columns keep their raw name.
+function columnLabel(col: string, t: TFunction): string {
+	return isFixedColumn(col) ? t(`column.${col}`) : col;
+}
 
 // ── Password cell ─────────────────────────────────────────────────────────────
 
@@ -49,26 +62,28 @@ function CategoryCell({ name, def }: { name: string | null; def: CategoryDef | n
 
 function getCellValue(entry: Entry, col: string): string {
 	switch (col) {
-		case "名称":   return entry.name;
-		case "登录名": return entry.loginName;
-		case "密码":   return entry.password;
-		case "备注":   return entry.notes;
-		case "类别":   return entry.category ?? "";
-		default:       return entry.customProperties[col] ?? "";
+		case "name":      return entry.name;
+		case "loginName": return entry.loginName;
+		case "password":  return entry.password;
+		case "notes":     return entry.notes;
+		case "category":  return entry.category ?? "";
+		default:          return entry.customProperties[col] ?? "";
 	}
 }
 
 // ── Entry table ───────────────────────────────────────────────────────────────
 
 export function EntryTable({ app }: { app: App }) {
+	const { t } = useI18n();
+
 	if (app.vault.entries.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center h-full text-center p-8">
 				<div className="w-16 h-16 bg-pw-100 rounded-2xl flex items-center justify-center mb-4">
 					<Plus className="w-8 h-8 text-pw-400" />
 				</div>
-				<p className="text-slate-500 font-medium mb-1">还没有密码</p>
-				<p className="text-sm text-slate-400">点击右下角的 + 按钮来新建密码</p>
+				<p className="text-slate-500 font-medium mb-1">{t("table.empty.title")}</p>
+				<p className="text-sm text-slate-400">{t("table.empty.hint")}</p>
 			</div>
 		);
 	}
@@ -76,7 +91,7 @@ export function EntryTable({ app }: { app: App }) {
 	if (app.visibleEntries.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center h-full text-center p-8">
-				<p className="text-slate-400 text-sm">没有匹配的密码</p>
+				<p className="text-slate-400 text-sm">{t("table.noMatch")}</p>
 			</div>
 		);
 	}
@@ -91,7 +106,7 @@ export function EntryTable({ app }: { app: App }) {
 								key={col}
 								className="px-4 py-3 text-left text-xs font-semibold text-slate-500 whitespace-nowrap"
 							>
-								{col}
+								{columnLabel(col, t)}
 							</th>
 						))}
 						<th className="w-10 px-2 py-3" />
@@ -109,9 +124,9 @@ export function EntryTable({ app }: { app: App }) {
 									key={col}
 									className="px-4 py-3 text-slate-700 whitespace-nowrap max-w-50"
 								>
-									{col === "密码" ? (
+									{col === "password" ? (
 										<PasswordCell value={entry.password} />
-									) : col === "类别" ? (
+									) : col === "category" ? (
 										<CategoryCell
 											name={entry.category}
 											def={app.categoryOptions.find((c) => c.name === entry.category) ?? null}

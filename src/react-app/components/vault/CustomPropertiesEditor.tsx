@@ -1,6 +1,7 @@
 import { Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
 
+import { useI18n } from "@/i18n";
 import { cn, DashedButton, GhostButton, IconButton } from "../ui";
 
 // Two modes to avoid the "focus vanishes on first keystroke" bug:
@@ -19,6 +20,7 @@ interface CustomPropertiesEditorProps {
 }
 
 export function CustomPropertiesEditor({ properties, onChange }: CustomPropertiesEditorProps) {
+    const { t } = useI18n();
     const [newRows, setNewRows] = useState<NewRow[]>([]);
     const [deletingKey, setDeletingKey] = useState<string | null>(null);
 
@@ -71,17 +73,17 @@ export function CustomPropertiesEditor({ properties, onChange }: CustomPropertie
                         className="flex items-center gap-2 px-3 py-2.5 bg-red-50 rounded-xl border border-red-100"
                     >
                         <span className="flex-1 text-sm text-red-700 truncate">
-                            删除 &ldquo;{key}&rdquo;？
+                            {t("customProps.confirmDelete", { key })}
                         </span>
                         <button
                             type="button"
                             onClick={() => confirmDelete(key)}
                             className="px-2.5 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-colors"
                         >
-                            确认
+                            {t("common.confirm")}
                         </button>
                         <GhostButton type="button" onClick={() => setDeletingKey(null)}>
-                            取消
+                            {t("common.cancel")}
                         </GhostButton>
                     </div>
                 ) : (
@@ -92,14 +94,14 @@ export function CustomPropertiesEditor({ properties, onChange }: CustomPropertie
                         <input
                             value={val}
                             onChange={(e) => updateValue(key, e.target.value)}
-                            placeholder="值"
+                            placeholder={t("customProps.value")}
                             className={cn(inputCls, "flex-1")}
                         />
                         <IconButton
                             variant="del"
                             onClick={() => setDeletingKey(key)}
                             className="p-2 shrink-0"
-                            title="删除属性"
+                            title={t("common.delete")}
                         >
                             <Trash2 size={14} />
                         </IconButton>
@@ -122,7 +124,7 @@ export function CustomPropertiesEditor({ properties, onChange }: CustomPropertie
                     <input
                         autoFocus
                         value={row.key}
-                        placeholder="属性名"
+                        placeholder={t("customProps.key")}
                         onChange={(e) => updateNew(row.id, "key", e.target.value)}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") { e.preventDefault(); commitNew(row.id); }
@@ -132,7 +134,7 @@ export function CustomPropertiesEditor({ properties, onChange }: CustomPropertie
                     />
                     <input
                         value={row.value}
-                        placeholder="值"
+                        placeholder={t("customProps.value")}
                         onChange={(e) => updateNew(row.id, "value", e.target.value)}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") { e.preventDefault(); commitNew(row.id); }
@@ -144,7 +146,7 @@ export function CustomPropertiesEditor({ properties, onChange }: CustomPropertie
                         variant="del"
                         onClick={() => discardNew(row.id)}
                         className="p-2 shrink-0"
-                        title="取消"
+                        title={t("common.cancel")}
                     >
                         <X size={14} />
                     </IconButton>
@@ -153,7 +155,7 @@ export function CustomPropertiesEditor({ properties, onChange }: CustomPropertie
 
             <DashedButton onClick={addNew}>
                 <Plus size={13} />
-                添加属性
+                {t("customProps.add")}
             </DashedButton>
         </div>
     );

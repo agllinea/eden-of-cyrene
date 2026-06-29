@@ -1,7 +1,8 @@
 import { Save, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import type { CategoryDef, Entry } from "../../domain/types";
+import type { CategoryDef, Entry } from "@/domain/types";
+import { useI18n } from "@/i18n";
 import {
     Button,
     CardButton,
@@ -37,6 +38,7 @@ export default function EntryModal({
     onClose,
     onAddAttachment,
 }: EntryModalProps) {
+    const { t } = useI18n();
     const [local, setLocal] = useState<Entry>(entry);
     const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -61,25 +63,25 @@ export default function EntryModal({
     return (
         <Modal isOpen onClose={handleDismiss} size="lg">
             <ModalHeader onClose={handleDismiss}>
-                {isNew ? "新建密码" : "编辑密码"}
+                {isNew ? t("entry.new") : t("entry.edit")}
             </ModalHeader>
 
             <ModalBody>
                 <div className="space-y-3">
-                    <SectionLabel>名称</SectionLabel>
+                    <SectionLabel>{t("entry.name")}</SectionLabel>
                     <Input
-                        placeholder="例：GitHub"
+                        placeholder={t("entry.namePlaceholder")}
                         value={local.name}
                         onChange={(e) => set("name", e.target.value)}
                         autoFocus={isNew}
                     />
-                    <SectionLabel>登录名 / 邮箱</SectionLabel>
+                    <SectionLabel>{t("entry.loginName")}</SectionLabel>
                     <Input
-                        placeholder="user@example.com"
+                        placeholder={t("entry.loginPlaceholder")}
                         value={local.loginName}
                         onChange={(e) => set("loginName", e.target.value)}
                     />
-                    <SectionLabel>密码</SectionLabel>
+                    <SectionLabel>{t("entry.password")}</SectionLabel>
                     <PasswordInput
                         placeholder="••••••••"
                         value={local.password}
@@ -88,7 +90,7 @@ export default function EntryModal({
                 </div>
 
                 <div>
-                    <SectionLabel>类别</SectionLabel>
+                    <SectionLabel>{t("entry.category")}</SectionLabel>
                     <CategoryInput
                         category={local.category}
                         categoryOptions={categoryOptions}
@@ -96,16 +98,16 @@ export default function EntryModal({
                     />
                 </div>
 
-                <SectionLabel>备注</SectionLabel>
+                <SectionLabel>{t("entry.notes")}</SectionLabel>
                 <Textarea
-                    placeholder="可选备注…"
+                    placeholder={t("entry.notesPlaceholder")}
                     rows={3}
                     value={local.notes}
                     onChange={(e) => set("notes", e.target.value)}
                 />
 
                 <div>
-                    <SectionLabel>自定义属性</SectionLabel>
+                    <SectionLabel>{t("entry.customProps")}</SectionLabel>
                     <CustomPropertiesEditor
                         properties={local.customProperties}
                         onChange={(p) => set("customProperties", p)}
@@ -113,7 +115,7 @@ export default function EntryModal({
                 </div>
 
                 <div>
-                    <SectionLabel>附件</SectionLabel>
+                    <SectionLabel>{t("entry.attachments")}</SectionLabel>
                     <AttachmentList
                         attachments={local.attachments}
                         onAdd={handleAddAttachment}
@@ -126,33 +128,33 @@ export default function EntryModal({
                 {isNew ? (
                     <>
                         <Button variant="ghost" onClick={onClose}>
-                            取消
+                            {t("common.cancel")}
                         </Button>
-                        <CardButton onClick={() => onSave(local)} icon={<Save size={15} />}>保存</CardButton>
+                        <CardButton onClick={() => onSave(local)} icon={<Save size={15} />}>{t("common.save")}</CardButton>
                     </>
                 ) : (
                     <>
                         {!confirmDelete && (
                             <Button variant="danger" className="mr-auto gap-2" onClick={() => setConfirmDelete(true)}>
                                 <Trash2 size={13} />
-                                删除
+                                {t("common.delete")}
                             </Button>
                         )}
                         {confirmDelete && (
                             <div className="flex items-center gap-2 mr-auto">
-                                <span className="text-xs text-red-400">确认删除？</span>
+                                <span className="text-xs text-red-400">{t("entry.confirmDelete")}</span>
                                 <Button variant="danger" onClick={() => onDelete(local.id)}>
-                                    确认
+                                    {t("common.confirm")}
                                 </Button>
                                 <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(false)}>
-                                    取消
+                                    {t("common.cancel")}
                                 </Button>
                             </div>
                         )}
                         <Button variant="ghost" onClick={onClose}>
-                            取消
+                            {t("common.cancel")}
                         </Button>
-                        <CardButton onClick={() => onSave(local)} icon={<Save size={15} />}>保存</CardButton>
+                        <CardButton onClick={() => onSave(local)} icon={<Save size={15} />}>{t("common.save")}</CardButton>
                     </>
                 )}
             </ModalFooter>

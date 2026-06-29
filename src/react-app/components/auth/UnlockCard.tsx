@@ -2,10 +2,12 @@ import { ArrowRight, ChevronLeft, Loader2, ShieldQuestion } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 
+import { useI18n } from "@/i18n";
 import { Button, GhostButton, PasswordInput, TextButton } from "../ui";
 import { App, Card, cardMotion } from "./shared";
 
 export function UnlockCard({ app }: { app: App }) {
+	const { t } = useI18n();
 	const [loading, setLoading] = useState(false);
 	const questions =
 		app.securitySlot?.type === "securityQuestions"
@@ -29,13 +31,13 @@ export function UnlockCard({ app }: { app: App }) {
 					<GhostButton onClick={app.goBackFromUnlock} className="p-2">
 						<ChevronLeft size={18} strokeWidth={2.5} />
 					</GhostButton>
-					<h2 className="text-base font-semibold text-slate-700">解锁 Vault</h2>
+					<h2 className="text-base font-semibold text-slate-700">{t("unlock.title")}</h2>
 				</div>
 
 				<div className="space-y-4">
 					{isPasswordMode ? (
 						<PasswordInput
-							placeholder="密码"
+							placeholder={t("unlock.password")}
 							value={app.unlockPassword}
 							autoFocus
 							disabled={loading}
@@ -47,10 +49,10 @@ export function UnlockCard({ app }: { app: App }) {
 							{questions.map((q, i) => (
 								<div key={q.id}>
 									<label className="block text-xs font-medium text-slate-500 mb-1.5">
-										问题 {i + 1}：{q.question}
+										{t("unlock.questionLabel", { n: i + 1, q: q.question })}
 									</label>
 									<PasswordInput
-										placeholder="回答"
+										placeholder={t("unlock.answer")}
 										value={app.unlockAnswers[q.id] ?? ""}
 										disabled={loading}
 										onChange={(e) =>
@@ -71,18 +73,18 @@ export function UnlockCard({ app }: { app: App }) {
 						) : (
 							<ArrowRight size={16} />
 						)}
-						{loading ? "解锁中…" : "解锁"}
+						{loading ? t("unlock.unlocking") : t("unlock.unlock")}
 					</Button>
 
 					{isPasswordMode && app.securitySlot && (
 						<TextButton onClick={() => app.setUnlockMode("questions")} className="w-full py-2 text-sm">
 							<ShieldQuestion size={14} />
-							使用安全问题解锁
+							{t("unlock.useQuestions")}
 						</TextButton>
 					)}
 					{!isPasswordMode && app.passwordSlot && (
 						<TextButton onClick={() => app.setUnlockMode("password")} className="w-full py-2 text-sm">
-							使用密码解锁
+							{t("unlock.usePassword")}
 						</TextButton>
 					)}
 				</div>

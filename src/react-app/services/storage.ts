@@ -1,21 +1,34 @@
-import type { EncryptionSettings, Vault, VaultFile } from "../domain/types";
-import { parseVaultFile, serializeVaultFile } from "./cryptoVault";
+import type { MessageKey } from "@/i18n";
+import type { Vault, VaultFile } from "@/domain/types";
+import {
+	openAttachment,
+	parseVaultFile,
+	sealAttachment,
+	serializeVaultWithSession,
+	type SealedAttachment,
+	type SessionCrypto,
+} from "./cryptoVault";
 
 const databaseName = "eden-of-cyrene";
-const storeName = "vault-cache";
+const docStore = "vault-cache";
+const attachmentStore = "vault-attachments";
 const cacheKey = "active-vault";
 
-export type StoredVaultSnapshot = {
+// The cached document keeps attachments stripped (dataUrl removed); their blobs
+// live in a separate object store keyed by attachment id. This keeps the
+// autosave hot path small. Download/cloud always produce a single inlined file.
+type CachedVaultRecord = {
 	fileName: string;
-	text: string;
+	text: string; // serialized light VaultFile (attachments stripped)
+	attachmentIds: string[];
+	epoch: string; // session epoch the blobs were sealed under
 	savedAt: string;
 };
 
-export interface VaultStorageProvider {
-	id: string;
-	label: string;
-	load(): Promise<VaultFile | null>;
-	save(vault: Vault, settings: EncryptionSettings): Promise<void>;
+export type CacheMeta = { savedAt: string };
+
+function vaultFileName(vault: Vault) {
+	return `${vault.name || "eden-vault"}.eden.json`;
 }
 
 function downloadTextFile(fileName: string, text: string) {
@@ -30,10 +43,16 @@ function downloadTextFile(fileName: string, text: string) {
 
 function openDatabase() {
 	return new Promise<IDBDatabase>((resolve, reject) => {
-		const request = indexedDB.open(databaseName, 1);
+		const request = indexedDB.open(databaseName, 2);
 
 		request.onupgradeneeded = () => {
-			request.result.createObjectStore(storeName);
+			const db = request.result;
+			if (!db.objectStoreNames.contains(docStore)) {
+				db.createObjectStore(docStore);
+			}
+			if (!db.objectStoreNames.contains(attachmentStore)) {
+				db.createObjectStore(attachmentStore);
+			}
 		};
 		request.onerror = () => reject(request.error);
 		request.onsuccess = () => resolve(request.result);
@@ -41,14 +60,15 @@ function openDatabase() {
 }
 
 async function withStore<T>(
+	store: string,
 	mode: IDBTransactionMode,
 	run: (store: IDBObjectStore) => IDBRequest<T>,
 ) {
 	const database = await openDatabase();
 
 	return new Promise<T>((resolve, reject) => {
-		const transaction = database.transaction(storeName, mode);
-		const request = run(transaction.objectStore(storeName));
+		const transaction = database.transaction(store, mode);
+		const request = run(transaction.objectStore(store));
 
 		request.onerror = () => reject(request.error);
 		request.onsuccess = () => resolve(request.result);
@@ -60,36 +80,122 @@ async function withStore<T>(
 	});
 }
 
-export class BrowserCacheProvider implements VaultStorageProvider {
-	id = "browser-cache";
-	label = "浏览器缓存";
+async function readRecord() {
+	return withStore<CachedVaultRecord | undefined>(docStore, "readonly", (store) =>
+		store.get(cacheKey),
+	);
+}
 
-	async load() {
-		const snapshot = await readCachedSnapshot();
-		return snapshot ? parseVaultFile(snapshot.text) : null;
+// ── Attachment splitting ──────────────────────────────────────────────────────
+
+function stripAttachments(vault: Vault): {
+	light: Vault;
+	blobs: Map<string, string>;
+} {
+	const blobs = new Map<string, string>();
+	const entries = vault.entries.map((entry) => ({
+		...entry,
+		attachments: entry.attachments.map((att) => {
+			if (att.dataUrl) blobs.set(att.id, att.dataUrl);
+			return { ...att, dataUrl: "" };
+		}),
+	}));
+	return { light: { ...vault, entries }, blobs };
+}
+
+async function persistAttachments(
+	blobs: Map<string, string>,
+	session: SessionCrypto,
+	previousEpoch: string | undefined,
+) {
+	const existing = new Set(
+		await withStore<IDBValidKey[]>(attachmentStore, "readonly", (store) =>
+			store.getAllKeys(),
+		),
+	);
+	// On key rotation, blobs sealed under the old key are unreadable — re-seal all.
+	const rotated = previousEpoch !== session.epoch;
+
+	for (const [id, dataUrl] of blobs) {
+		if (rotated || !existing.has(id)) {
+			const sealed = await sealAttachment(dataUrl, session);
+			await withStore(attachmentStore, "readwrite", (store) =>
+				store.put(sealed, id),
+			);
+		}
 	}
-
-	async save(vault: Vault, settings: EncryptionSettings) {
-		await writeCachedSnapshot({
-			fileName: `${vault.name || "eden-vault"}.eden.json`,
-			text: await serializeVaultFile(vault, settings),
-			savedAt: new Date().toISOString(),
-		});
+	// Prune blobs no longer referenced.
+	for (const key of existing) {
+		if (!blobs.has(key as string)) {
+			await withStore(attachmentStore, "readwrite", (store) =>
+				store.delete(key),
+			);
+		}
 	}
 }
 
-export class DownloadFileProvider implements VaultStorageProvider {
-	id = "download";
-	label = "文件下载";
+/** Rehydrate stripped attachments back into the vault after load/unlock. */
+export async function hydrateAttachments(
+	vault: Vault,
+	session: SessionCrypto,
+): Promise<Vault> {
+	const needsHydration = vault.entries.some((entry) =>
+		entry.attachments.some((att) => !att.dataUrl),
+	);
+	if (!needsHydration) return vault;
 
-	async load() {
-		return null;
-	}
+	const entries = await Promise.all(
+		vault.entries.map(async (entry) => ({
+			...entry,
+			attachments: await Promise.all(
+				entry.attachments.map(async (att) => {
+					if (att.dataUrl) return att;
+					const sealed = await withStore<SealedAttachment | undefined>(
+						attachmentStore,
+						"readonly",
+						(store) => store.get(att.id),
+					);
+					if (!sealed) return att;
+					return { ...att, dataUrl: await openAttachment(sealed, session) };
+				}),
+			),
+		})),
+	);
 
-	async save(vault: Vault, settings: EncryptionSettings) {
-		const text = await serializeVaultFile(vault, settings);
-		downloadTextFile(`${vault.name || "eden-vault"}.eden.json`, text);
-	}
+	return { ...vault, entries };
+}
+
+// ── Public cache API ──────────────────────────────────────────────────────────
+
+export async function saveVaultToCache(
+	vault: Vault,
+	session: SessionCrypto,
+): Promise<string> {
+	const previous = await readRecord();
+	const { light, blobs } = stripAttachments(vault);
+	const text = await serializeVaultWithSession(light, session);
+
+	await persistAttachments(blobs, session, previous?.epoch);
+
+	const savedAt = new Date().toISOString();
+	await withStore(docStore, "readwrite", (store) =>
+		store.put(
+			{
+				fileName: vaultFileName(vault),
+				text,
+				attachmentIds: [...blobs.keys()],
+				epoch: session.epoch,
+				savedAt,
+			} satisfies CachedVaultRecord,
+			cacheKey,
+		),
+	);
+	return savedAt;
+}
+
+export async function readCacheMeta(): Promise<CacheMeta | null> {
+	const record = await readRecord();
+	return record ? { savedAt: record.savedAt } : null;
 }
 
 export async function readUploadedVault(file: File) {
@@ -97,27 +203,50 @@ export async function readUploadedVault(file: File) {
 	return parseVaultFile(text);
 }
 
-export async function readCachedSnapshot() {
-	return withStore<StoredVaultSnapshot | undefined>("readonly", (store) =>
-		store.get(cacheKey),
-	);
+// ── Storage providers (looked up by id, never by index) ──────────────────────
+
+export interface VaultStorageProvider {
+	id: string;
+	labelKey: MessageKey;
+	load(): Promise<VaultFile | null>;
+	save(vault: Vault, session: SessionCrypto): Promise<void>;
 }
 
-export async function writeCachedSnapshot(snapshot: StoredVaultSnapshot) {
-	await withStore<IDBValidKey>("readwrite", (store) =>
-		store.put(snapshot, cacheKey),
-	);
+export class BrowserCacheProvider implements VaultStorageProvider {
+	id = "browser-cache";
+	labelKey = "login.useCache.title" as const;
+
+	async load() {
+		const record = await readRecord();
+		return record ? parseVaultFile(record.text) : null;
+	}
+
+	async save(vault: Vault, session: SessionCrypto) {
+		await saveVaultToCache(vault, session);
+	}
 }
 
-export async function cacheVaultText(fileName: string, text: string) {
-	await writeCachedSnapshot({
-		fileName,
-		text,
-		savedAt: new Date().toISOString(),
-	});
+export class DownloadFileProvider implements VaultStorageProvider {
+	id = "download";
+	labelKey = "settings.download" as const;
+
+	async load() {
+		return null;
+	}
+
+	async save(vault: Vault, session: SessionCrypto) {
+		const text = await serializeVaultWithSession(vault, session);
+		downloadTextFile(vaultFileName(vault), text);
+	}
 }
 
-export const storageProviders = [
+const providers: VaultStorageProvider[] = [
 	new BrowserCacheProvider(),
 	new DownloadFileProvider(),
-] satisfies VaultStorageProvider[];
+];
+
+export function getProvider(id: string): VaultStorageProvider {
+	const provider = providers.find((item) => item.id === id);
+	if (!provider) throw new Error(`Unknown storage provider: ${id}`);
+	return provider;
+}

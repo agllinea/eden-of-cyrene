@@ -2,8 +2,9 @@ import { Plus, Search, Tag } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
-import type { CategoryDef } from "../../domain/types";
-import type { VaultApp } from "../../hooks/useVaultApp";
+import type { CategoryDef } from "@/domain/types";
+import type { VaultApp } from "@/hooks/useVaultApp";
+import { useI18n } from "@/i18n";
 import { cn, GhostButton } from "../ui";
 import { CategoryIcon } from "./CategoryIcon";
 import CategoryModal from "./CategoryModal";
@@ -13,6 +14,7 @@ type App = VaultApp;
 // ── Sidebar content (shared between mobile overlay and desktop panel) ─────────
 
 function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void }) {
+	const { t } = useI18n();
 	const [modalTarget, setModalTarget] = useState<"new" | CategoryDef | null>(null);
 
 	const handleModalSave = (def: CategoryDef) => {
@@ -46,7 +48,7 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 					<input
 						value={app.searchText}
 						onChange={(e) => app.setSearchText(e.target.value)}
-						placeholder="搜索…"
+						placeholder={t("sidebar.search")}
 						className={cn(
 							"w-full pl-8 pr-3 py-2 rounded-xl bg-pw-50 border border-pw-100",
 							"text-sm text-slate-700 placeholder:text-slate-300",
@@ -77,7 +79,7 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 					>
 						<Tag size={11} />
 					</div>
-					全部
+					{t("sidebar.all")}
 					<span className="ml-auto text-xs text-slate-300 font-normal">
 						{app.vault.entries.length}
 					</span>
@@ -106,7 +108,7 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 									e.stopPropagation();
 									setModalTarget(cat);
 								}}
-								title="编辑图标"
+								title={t("sidebar.editIcon")}
 								className={cn(
 									"w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all",
 									active ? "bg-ac-200 text-ac-600" : "bg-slate-100 text-slate-400",
@@ -129,7 +131,7 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 						className="px-3 py-1.5 text-xs gap-2 rounded-lg"
 					>
 						<Plus size={12} />
-						新建类别
+						{t("sidebar.newCategory")}
 					</GhostButton>
 				</div>
 			</div>

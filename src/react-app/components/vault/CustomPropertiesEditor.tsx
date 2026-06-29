@@ -58,7 +58,7 @@ export function CustomPropertiesEditor({ properties, onChange }: CustomPropertie
 
     const inputCls = cn(
         "px-3 py-2 rounded-lg border border-pw-200 bg-white",
-        "text-sm text-slate-700 placeholder:text-slate-300",
+        "text-base md:text-sm text-slate-700 placeholder:text-slate-300",
         "focus:outline-none focus:border-pw-400 focus:ring-2 focus:ring-pw-100",
         "transition-all duration-200",
     );

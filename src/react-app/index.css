@@ -23,6 +23,20 @@
   --color-ac-600: #158890;
 }
 
+/* Safe-area helpers for notched / home-indicator devices.
+   Requires <meta name="viewport" content="...viewport-fit=cover"> in index.html.
+   On non-notched devices env(safe-area-inset-*) is 0, so these are no-ops. */
+@utility pt-safe { padding-top: env(safe-area-inset-top); }
+@utility pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+/* Base 1rem padding plus the inset (combined so the two don't override). */
+@utility pt-safe-4 { padding-top: calc(1rem + env(safe-area-inset-top)); }
+@utility pb-safe-4 { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
+/* Floating action button kept clear of the home indicator / landscape notch. */
+@utility fab-safe {
+  bottom: calc(1.75rem + env(safe-area-inset-bottom));
+  right: calc(1.75rem + env(safe-area-inset-right));
+}
+
 @layer base {
   *, *::before, *::after {
     box-sizing: border-box;

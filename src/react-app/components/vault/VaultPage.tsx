@@ -32,8 +32,8 @@ export default function VaultPage({ app }: { app: VaultApp }) {
 				<main className="flex-1 relative overflow-hidden bg-white">
 					<EntryTable app={app} />
 
-					{/* FAB */}
-					<div className="absolute bottom-7 right-7">
+					{/* FAB — kept clear of the home indicator on notched phones */}
+					<div className="absolute fab-safe">
 						<CardButton
 							onClick={app.openNewEntry}
 							aria-label={t("fab.newEntry")}

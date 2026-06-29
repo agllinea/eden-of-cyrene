@@ -7,7 +7,7 @@ type App = VaultApp;
 
 export function VaultHeader({ app, onMenuClick }: { app: App; onMenuClick: () => void }) {
 	return (
-		<header className="shrink-0 h-14 bg-white border-b border-pw-100 flex items-center px-4 gap-2 shadow-sm">
+		<header className="shrink-0 min-h-14 pt-safe bg-white border-b border-pw-100 flex items-center px-4 gap-2 shadow-sm">
 			{/* Hamburger — mobile only */}
 			<CardButton variant="light" onClick={onMenuClick} icon={<Menu size={18} />} size="sm" className="md:hidden" />
 

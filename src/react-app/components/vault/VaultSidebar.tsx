@@ -39,7 +39,7 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 	return (
 		<>
 			{/* Search */}
-			<div className="px-3 pt-4 pb-3 shrink-0">
+			<div className="px-3 pt-safe-4 pb-3 shrink-0">
 				<div className="relative">
 					<Search
 						size={14}
@@ -51,7 +51,7 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 						placeholder={t("sidebar.search")}
 						className={cn(
 							"w-full pl-8 pr-3 py-2 rounded-xl bg-pw-50 border border-pw-100",
-							"text-sm text-slate-700 placeholder:text-slate-300",
+							"text-base md:text-sm text-slate-700 placeholder:text-slate-300",
 							"focus:outline-none focus:border-pw-300 focus:ring-2 focus:ring-pw-100 focus:bg-white",
 							"transition-all duration-200",
 						)}
@@ -60,7 +60,7 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 			</div>
 
 			{/* Category list */}
-			<div className="flex-1 overflow-y-auto px-3 pb-4 space-y-0.5">
+			<div className="flex-1 overflow-y-auto px-3 pb-safe-4 space-y-0.5">
 				{/* "All" row */}
 				<button
 					onClick={() => selectCategory(null)}

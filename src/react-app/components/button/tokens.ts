@@ -39,8 +39,9 @@ export const cls = {
 	btnIconX:     "text-slate-400 hover:text-slate-600 transition-colors",
 	/** Eye / reveal icon — teal on hover */
 	btnIconEye:   "text-slate-300 hover:text-ac-500 transition-colors",
-	/** Row action icon — appears on row hover (size baked in) */
-	btnIconRow:   "w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-pw-500 hover:bg-pw-100 opacity-0 group-hover:opacity-100 transition-all",
+	/** Row action icon — always visible on touch; reveal-on-hover only where a
+	 *  real pointer exists (touch devices have no hover, so it must not hide). */
+	btnIconRow:   "w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-pw-500 hover:bg-pw-100 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-all",
 };
 
 export type CardButtonSize = "sm" | "md" | "lg";

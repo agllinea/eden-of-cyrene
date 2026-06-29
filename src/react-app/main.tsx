@@ -14,3 +14,13 @@ createRoot(document.getElementById("root")!).render(
 		</ErrorBoundary>
 	</StrictMode>,
 );
+
+// Offline support / installability — production only so the SW never interferes
+// with the Vite dev server's HMR.
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+	window.addEventListener("load", () => {
+		navigator.serviceWorker.register("/sw.js").catch(() => {
+			// Registration failures are non-fatal; the app still works online.
+		});
+	});
+}

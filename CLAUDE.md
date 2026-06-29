@@ -105,6 +105,25 @@ context** (`SessionCrypto`) after unlock/create:
 - Not yet covered: `services/storage.ts` needs a fake IndexedDB
   (e.g. `fake-indexeddb`) before it can be tested; hooks/components are untested.
 
+### Multi-platform (desktop + mobile / PWA)
+
+- Layout is responsive: `md:` breakpoint switches the sidebar between a static
+  desktop panel and a slide-in mobile drawer (hamburger in the header). Heights
+  use `dvh` (handles the mobile URL bar).
+- **Touch:** never gate an essential control behind `:hover` alone. Hover-reveal
+  uses `[@media(hover:hover)]:` so touch devices (no hover) keep controls visible
+  (see `btnIconRow` in `button/tokens.ts`).
+- **iOS zoom:** inputs are `text-base md:text-sm` (≥16px on mobile) so Safari does
+  not auto-zoom on focus.
+- **Safe areas:** `index.html` sets `viewport-fit=cover`; edge-anchored UI (header,
+  FAB, toaster, sidebar) uses the `pt-safe` / `pb-safe-4` / `fab-safe` utilities
+  in `index.css` (no-ops on non-notched devices).
+- **PWA:** installable + offline via `public/manifest.webmanifest` and a
+  network-first-navigation / cache-first-assets service worker (`public/sw.js`),
+  registered in `main.tsx` **production-only**. Vault data is never cached by the
+  SW (it lives in IndexedDB). _Follow-up: add PNG icons (192/512, maskable) — iOS
+  `apple-touch-icon` ignores SVG._
+
 ## Deferred upgrades (TODO — intentionally NOT yet done)
 
 The major items from the 2026-06 architecture review (automated tests, schema

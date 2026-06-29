@@ -103,7 +103,7 @@ function ToasterUI({
 		<div
 			aria-live="polite"
 			aria-atomic="false"
-			className="fixed top-4 inset-x-0 z-[200] flex flex-col items-center gap-2 pointer-events-none px-4"
+			className="fixed top-4 inset-x-0 z-[200] flex flex-col items-center gap-2 pointer-events-none px-4 pt-safe"
 		>
 			<AnimatePresence initial={false}>
 				{toasts.map((toast) => (

@@ -1,0 +1,19 @@
+{
+	"name": "Eden of Cyrene",
+	"short_name": "Eden",
+	"description": "A client-side, end-to-end encrypted password manager.",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"orientation": "any",
+	"background_color": "#fdf8fe",
+	"theme_color": "#ffffff",
+	"icons": [
+		{
+			"src": "/icon.svg",
+			"type": "image/svg+xml",
+			"sizes": "any",
+			"purpose": "any"
+		}
+	]
+}

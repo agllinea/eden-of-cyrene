@@ -34,7 +34,7 @@ export function FloatingInput({
 				placeholder=""
 				className={cn(
 					"w-full px-4 py-2.5 rounded-xl border bg-white",
-					"text-sm text-slate-700",
+					"text-base md:text-sm text-slate-700",
 					"focus:outline-none transition-all duration-200 disabled:opacity-50",
 					focused ? "border-pw-400 ring-2 ring-pw-100" : "border-pw-200",
 					className,
@@ -84,7 +84,7 @@ export function FloatingPasswordInput({
 				placeholder=""
 				className={cn(
 					"w-full px-4 py-2.5 pr-10 rounded-xl border bg-white",
-					"text-sm text-slate-700",
+					"text-base md:text-sm text-slate-700",
 					"focus:outline-none transition-all duration-200 disabled:opacity-50",
 					focused ? "border-pw-400 ring-2 ring-pw-100" : "border-pw-200",
 					className,
@@ -127,7 +127,7 @@ export function Input({ label, className, ...props }: InputProps) {
 				{...props}
 				className={cn(
 					"w-full px-4 py-2.5 rounded-xl border border-pw-200 bg-white",
-					"text-sm text-slate-700 placeholder:text-slate-300",
+					"text-base md:text-sm text-slate-700 placeholder:text-slate-300",
 					"focus:outline-none focus:border-pw-400 focus:ring-2 focus:ring-pw-100",
 					"transition-all duration-200 disabled:opacity-50",
 					className,
@@ -158,7 +158,7 @@ export function PasswordInput({
 					{...props}
 					className={cn(
 						"w-full px-4 py-2.5 pr-10 rounded-xl border border-pw-200 bg-white",
-						"text-sm text-slate-700 placeholder:text-slate-300",
+						"text-base md:text-sm text-slate-700 placeholder:text-slate-300",
 						"focus:outline-none focus:border-pw-400 focus:ring-2 focus:ring-pw-100",
 						"transition-all duration-200 disabled:opacity-50",
 						className,
@@ -195,7 +195,7 @@ export function Textarea({
 				{...props}
 				className={cn(
 					"w-full px-4 py-2.5 rounded-xl border border-pw-200 bg-white resize-none",
-					"text-sm text-slate-700 placeholder:text-slate-300",
+					"text-base md:text-sm text-slate-700 placeholder:text-slate-300",
 					"focus:outline-none focus:border-pw-400 focus:ring-2 focus:ring-pw-100",
 					"transition-all duration-200",
 					className,

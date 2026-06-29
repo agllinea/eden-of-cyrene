@@ -1,3 +1,4 @@
+import { parseVaultFileObject, parseVaultObject } from "@/domain/schema";
 import type {
 	EncryptedPayload,
 	EncryptedVault,
@@ -104,18 +105,6 @@ function normalizeAnswers(answers: string[]) {
 	return answers.map((answer) => answer.trim().toLocaleLowerCase()).join("\n");
 }
 
-function assertVaultFile(value: unknown): VaultFile {
-	if (!value || typeof value !== "object" || !("kind" in value)) {
-		throw new Error("文件不是 Eden of Cyrene Vault。");
-	}
-
-	if (value.kind === "Vault" || value.kind === "EncryptedVault") {
-		return value as VaultFile;
-	}
-
-	throw new Error("无法识别的 Vault 文件格式。");
-}
-
 async function createKeySlot(
 	type: KeySlot["type"],
 	passphrase: string,
@@ -143,8 +132,8 @@ async function createKeySlot(
 	};
 }
 
-export function parseVaultFile(text: string) {
-	return assertVaultFile(JSON.parse(text));
+export function parseVaultFile(text: string): VaultFile {
+	return parseVaultFileObject(JSON.parse(text));
 }
 
 // ── Session crypto ──────────────────────────────────────────────────────────
@@ -327,11 +316,7 @@ async function unlockWithSlot(
 		const rawVaultKey = await decryptText(slot.wrappedKey, wrappingKey);
 		const vaultKey = await importVaultKey(rawVaultKey);
 		const vaultText = await decryptText(file.encryption.vault, vaultKey);
-		const vault = JSON.parse(vaultText) as Vault;
-
-		if (vault.kind !== "Vault") {
-			throw new Error("解锁后的内容不是 Vault。");
-		}
+		const vault = parseVaultObject(JSON.parse(vaultText));
 
 		return { vault, vaultKey };
 	} catch {

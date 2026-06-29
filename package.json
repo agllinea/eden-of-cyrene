@@ -16,7 +16,8 @@
 		"lucide-react": "^1.21.0",
 		"motion": "^12.42.0",
 		"react": "19.2.1",
-		"react-dom": "19.2.1"
+		"react-dom": "19.2.1",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@cloudflare/vite-plugin": "1.15.3",
@@ -34,6 +35,7 @@
 		"typescript": "5.9.3",
 		"typescript-eslint": "8.48.0",
 		"vite": "^7.0.0",
+		"vitest": "^4.1.9",
 		"wrangler": "4.88.0"
 	},
 	"private": true,
@@ -44,7 +46,9 @@
 		"deploy": "wrangler deploy",
 		"dev": "vite",
 		"lint": "eslint .",
-		"preview": "npm run build && vite preview"
+		"preview": "npm run build && vite preview",
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
 	"type": "module"
 }

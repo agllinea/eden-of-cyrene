@@ -20,11 +20,13 @@ also auto-saved to the browser's IndexedDB cache.
 ## Commands
 
 ```bash
-npm run dev      # Vite dev server (http://localhost:5173)
-npm run build    # tsc -b && vite build
-npm run lint     # eslint .
-npm run check    # tsc && vite build && wrangler deploy --dry-run
-npm run deploy   # wrangler deploy
+npm run dev        # Vite dev server (http://localhost:5173)
+npm run build      # tsc -b && vite build
+npm run lint       # eslint .
+npm run test       # vitest run (CI / one-shot)
+npm run test:watch # vitest (watch mode)
+npm run check      # tsc && vite build && wrangler deploy --dry-run
+npm run deploy     # wrangler deploy
 ```
 
 ## Architecture
@@ -73,6 +75,17 @@ context** (`SessionCrypto`) after unlock/create:
   rehydrated into the full in-memory `Vault`.
 - Providers are looked up by `id` (`getProvider("download")`), never by array index.
 
+### Schema validation & migration (`domain/schema.ts`, `domain/migrate.ts`)
+
+- `parseVaultFile` validates with **zod** at the parse boundary, so a corrupted
+  cache or hand-edited file is rejected here instead of crashing deep in the UI.
+  The decrypted document is re-validated with `parseVaultObject`.
+- `migrateVaultFile` walks `formatVersion` up to `LATEST_FORMAT_VERSION` before
+  validation (chain currently empty — add a step keyed by the source version
+  when the on-disk format changes). Files newer than supported are refused.
+- The zod schemas are kept in sync with `domain/types.ts` by a compile-time
+  assignability check (`_schemaSync`) — drift fails the build.
+
 ### Status & i18n
 
 - UI text never hard-codes user-facing strings. Use `useI18n().t("key")`.
@@ -80,24 +93,27 @@ context** (`SessionCrypto`) after unlock/create:
   with a `tone` + message key), never by matching display strings. `App.tsx`
   turns them into toasts; cache state is a typed enum, not a string compared with `===`.
 
+### Testing
+
+- **Vitest** (`*.test.ts` next to the module under test), config in `vitest.config.ts`
+  (Node env — WebCrypto/btoa/TextEncoder are global; the `@/` alias is mirrored).
+  Test files are excluded from the production `tsc` build.
+- Covered today: `services/cryptoVault.ts` (encrypt↔decrypt round-trips,
+  wrong-password/answer failures, multi-slot unlock, answer normalization,
+  session reuse keeping all slots, attachment sealing) and `domain/vaultLogic.ts`
+  (category normalization/inheritance, touchVault, upsert/remove).
+- Not yet covered: `services/storage.ts` needs a fake IndexedDB
+  (e.g. `fake-indexeddb`) before it can be tested; hooks/components are untested.
+
 ## Deferred upgrades (TODO — intentionally NOT yet done)
 
-These were identified during the 2026-06 architecture review and consciously
-postponed. Pick them up in roughly this order:
+The major items from the 2026-06 architecture review (automated tests, schema
+validation + migration) are now done. Remaining lower-priority follow-ups:
 
-1. **Automated tests (deferred).** There is currently zero test coverage. This is
-   the highest-priority gap for a crypto-bearing app. `services/cryptoVault.ts`
-   and `domain/vaultLogic.ts` are pure and trivially testable. Add Vitest and
-   cover: encrypt→decrypt round-trips, unlock-with-wrong-password, multi-slot
-   unlock, category-property inheritance, upsert/remove entry.
-
-2. **Schema validation + version migration (deferred).** `parseVaultFile` only
-   checks the `kind` field and then casts `as Vault`/`as VaultFile` with no
-   structural validation, so a corrupted cache or hand-edited file can crash deep
-   in the UI. `formatVersion` exists but there is no migration pipeline. Add a
-   schema validator (e.g. zod) at the parse boundary and a
-   `migrate(file): VaultFile` step keyed off `formatVersion` so the on-disk format
-   can evolve safely.
+1. **Test the persistence layer.** `services/storage.ts` (IndexedDB split-blob
+   cache, hydration, key-rotation re-seal) is the largest untested surface. Add
+   `fake-indexeddb` and cover save→load round-trips and attachment rehydration.
+   Hooks/components also have no tests.
 
 ### Known smaller limitations (note, low priority)
 

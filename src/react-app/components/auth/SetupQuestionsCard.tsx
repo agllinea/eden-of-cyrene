@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { createBlankSecurityQuestion } from "@/domain/types";
 import { useI18n } from "@/i18n";
-import { Button, CardButton, FloatingInput, FloatingPasswordInput, GhostButton } from "../ui";
+import { Button, FloatingInput, FloatingPasswordInput } from "../ui";
 import { App, Card, cardMotion } from "./shared";
 
 export function SetupQuestionsCard({ app }: { app: App }) {
@@ -27,18 +27,17 @@ export function SetupQuestionsCard({ app }: { app: App }) {
 			<Card>
 				{/* Header: back + title + page nav */}
 				<div className="flex items-center -ml-2 mb-6">
-					<GhostButton onClick={app.goBackFromSetupQuestions} className="p-2 shrink-0">
-						<ChevronLeft size={18} strokeWidth={2.5} />
-					</GhostButton>
+					<Button
+						variant="ghost"
+						icon={<ChevronLeft size={18} strokeWidth={2.5} />}
+						onClick={app.goBackFromSetupQuestions}
+						className="p-2 shrink-0"
+					/>
 					<h2 className="text-base font-semibold text-slate-700 flex-1">{t("setupQ.title")}</h2>
 					<div className="flex items-center gap-0.5 shrink-0">
-						<GhostButton onClick={goPrev} disabled={currentIdx === 0} className="p-1.5">
-							<ChevronLeft size={14} />
-						</GhostButton>
+						<Button variant="ghost" icon={<ChevronLeft size={14} />} onClick={goPrev} disabled={currentIdx === 0} className="p-1.5" />
 						<span className="text-xs text-slate-400 tabular-nums w-9 text-center">{currentIdx + 1} / {total}</span>
-						<GhostButton onClick={goNext} disabled={currentIdx === total - 1} className="p-1.5">
-							<ChevronRight size={14} />
-						</GhostButton>
+						<Button variant="ghost" icon={<ChevronRight size={14} />} onClick={goNext} disabled={currentIdx === total - 1} className="p-1.5" />
 					</div>
 				</div>
 
@@ -67,18 +66,18 @@ export function SetupQuestionsCard({ app }: { app: App }) {
 					</AnimatePresence>
 				</div>
 
-				<CardButton variant="air" onClick={addQuestion} icon={<Plus size={14} />} fullWidth className="mt-3">
+				<Button variant="dashed" onClick={addQuestion} icon={<Plus size={14} />} className="mt-3">
 					{t("setupQ.add")}
-				</CardButton>
+				</Button>
 
 				{/* Footer actions */}
 				<div className="mt-6 space-y-2">
-					<Button fullWidth onClick={() => app.finishSecurityQuestions(true)}>
+					<Button variant="primary" fullWidth onClick={() => app.finishSecurityQuestions(true)}>
 						{t("setupQ.saveEnter")}
 					</Button>
-					<GhostButton onClick={() => app.finishSecurityQuestions(false)} fullWidth className="py-2 text-sm justify-center">
+					<Button variant="ghost" onClick={() => app.finishSecurityQuestions(false)} fullWidth className="py-2 text-sm justify-center">
 						{t("setupQ.skip")}
-					</GhostButton>
+					</Button>
 				</div>
 			</Card>
 		</motion.div>

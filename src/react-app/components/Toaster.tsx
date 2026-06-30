@@ -7,7 +7,7 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CheckCircle, AlertCircle, Info, X } from "lucide-react";
-import { IconButton } from "./ui";
+import { IconButton } from "./button";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

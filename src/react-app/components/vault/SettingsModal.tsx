@@ -9,18 +9,15 @@ import { cacheStateLabel } from "@/i18n/format";
 import {
 	Button,
 	Input,
-	PasswordInput,
 	Modal,
 	ModalHeader,
 	ModalBody,
 	ModalFooter,
 	SectionLabel,
 	cn,
-	CardButton,
 	FloatingInput,
 	FloatingPasswordInput,
 	IconButton,
-	DashedButton,
 } from "../ui";
 
 interface SettingsModalProps {
@@ -121,14 +118,14 @@ export default function SettingsModal({
 					<SectionLabel>{t("settings.language")}</SectionLabel>
 					<div className="flex gap-2">
 						{LOCALES.map((code) => (
-							<CardButton
+							<Button
 								key={code}
-								variant={locale === code ? "macaroon" : "light"}
+								variant={locale === code ? "primary" : "secondary"}
 								onClick={() => setLocale(code)}
 								fullWidth
 							>
 								{t(`lang.${code}`)}
-							</CardButton>
+							</Button>
 						))}
 					</div>
 				</div>
@@ -172,14 +169,15 @@ export default function SettingsModal({
 				{/* Download */}
 				<div>
 					<SectionLabel>{t("settings.export")}</SectionLabel>
-					<CardButton
+					<Button
+						variant="primary"
 						onClick={() => void handleDownload()}
 						disabled={downloading}
 						fullWidth
 					>
 						<Download size={15} />
 						{downloading ? t("settings.downloading") : t("settings.download")}
-					</CardButton>
+					</Button>
 				</div>
 
 				{/* Encryption */}
@@ -189,25 +187,25 @@ export default function SettingsModal({
 					<div className="flex gap-2 mb-4">
 						{isEncrypted ? (
 							<>
-								<CardButton onClick={enableEncryption} fullWidth>
+								<Button variant="primary" onClick={enableEncryption} fullWidth>
 									<Shield size={15} />
 									{t("settings.encrypted")}
-								</CardButton>
-								<CardButton variant="light" onClick={disableEncryption} fullWidth>
+								</Button>
+								<Button variant="secondary" onClick={disableEncryption} fullWidth>
 									<ShieldOff size={15} />
 									{t("settings.noEncryption")}
-								</CardButton>
+								</Button>
 							</>
 						) : (
 							<>
-								<CardButton variant="light" onClick={enableEncryption} fullWidth>
+								<Button variant="secondary" onClick={enableEncryption} fullWidth>
 									<Shield size={15} />
 									{t("settings.encrypted")}
-								</CardButton>
-								<CardButton onClick={disableEncryption} fullWidth>
+								</Button>
+								<Button variant="primary" onClick={disableEncryption} fullWidth>
 									<ShieldOff size={15} />
 									{t("settings.noEncryption")}
-								</CardButton>
+								</Button>
 							</>
 						)}
 					</div>
@@ -215,7 +213,8 @@ export default function SettingsModal({
 					{isEncrypted && (
 						<div className="space-y-4">
 							<SectionLabel>{t("settings.password")}</SectionLabel>
-							<PasswordInput
+							<Input
+								password
 								placeholder={t("settings.passwordPlaceholder")}
 								value={localSettings.password}
 								onChange={(e) => setPassword(e.target.value)}
@@ -249,10 +248,10 @@ export default function SettingsModal({
 											/>
 										</div>
 									))}
-									<DashedButton onClick={addQuestion} className="mt-3">
+									<Button variant="dashed" onClick={addQuestion} className="mt-3">
 										<Plus size={13} />
 										{t("settings.addQuestion")}
-									</DashedButton>
+									</Button>
 								</div>
 							</div>
 						</div>

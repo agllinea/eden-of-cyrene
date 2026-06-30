@@ -4,7 +4,7 @@ import { useRef } from "react";
 
 import { useI18n } from "@/i18n";
 import { cacheStateLabel } from "@/i18n/format";
-import { CardButton } from "../ui";
+import { OptionCard } from "../ui";
 import { App, AppLogo, Card, cardMotion } from "./shared";
 
 export function LoginCard({ app }: { app: App }) {
@@ -17,30 +17,28 @@ export function LoginCard({ app }: { app: App }) {
 				<AppLogo subtitle={t("login.subtitle")} />
 
 				<div className="space-y-3">
-					<CardButton
-						variant="light"
+					<OptionCard
+						variant="soft"
 						onClick={() => fileRef.current?.click()}
 						title={t("login.openFile.title")}
 						text={t("login.openFile.text")}
 						icon={<Upload size={20} />}
-						fullWidth
 					/>
 
-					<CardButton
-						variant="light"
+					<OptionCard
+						variant="soft"
 						onClick={() => void app.openCachedVault()}
 						title={t("login.useCache.title")}
 						text={cacheStateLabel(app.cacheState, t)}
 						icon={<Database size={20} />}
-						fullWidth
 					/>
 
-					<CardButton
+					<OptionCard
+						variant="primary"
 						onClick={app.startNewVault}
 						title={t("login.newVault.title")}
 						text={t("login.newVault.text")}
 						icon={<Plus size={20} />}
-						fullWidth
 					/>
 				</div>
 

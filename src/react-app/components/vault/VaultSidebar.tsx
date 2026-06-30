@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { CategoryDef } from "@/domain/types";
 import type { VaultApp } from "@/hooks/useVaultApp";
 import { useI18n } from "@/i18n";
-import { cn, GhostButton } from "../ui";
+import { Button, cn } from "../ui";
 import { CategoryIcon } from "./CategoryIcon";
 import CategoryModal from "./CategoryModal";
 
@@ -38,21 +38,25 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 
 	return (
 		<>
-			{/* Search */}
-			<div className="px-3 pt-safe-4 pb-3 shrink-0">
-				<div className="relative">
+			{/* Search — same gradient + height as the entry table thead */}
+			<div className={cn(
+				"px-3 shrink-0 flex items-center",
+				// "bg-linear-to-br from-ac-100 to-pw-100 border-b border-pw-100",
+				"pt-safe-4 pb-3 md:pt-0 md:pb-0 md:h-14",
+			)}>
+				<div className="relative w-full">
 					<Search
 						size={14}
-						className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300"
+						className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
 					/>
 					<input
 						value={app.searchText}
 						onChange={(e) => app.setSearchText(e.target.value)}
 						placeholder={t("sidebar.search")}
 						className={cn(
-							"w-full pl-8 pr-3 py-2 rounded-xl bg-pw-50 border border-pw-100",
+							"w-full pl-8 pr-3 py-1.5 rounded-lg bg-white border border-pw-200",
 							"text-base md:text-sm text-slate-700 placeholder:text-slate-300",
-							"focus:outline-none focus:border-pw-300 focus:ring-2 focus:ring-pw-100 focus:bg-white",
+							"focus:outline-none focus:border-pw-300 focus:ring-2 focus:ring-pw-100",
 							"transition-all duration-200",
 						)}
 					/>
@@ -65,7 +69,7 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 				<button
 					onClick={() => selectCategory(null)}
 					className={cn(
-						"w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors duration-150",
+						"w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors duration-150 cursor-pointer select-none",
 						app.selectedCategory === null
 							? "bg-pw-100 text-pw-700"
 							: "text-slate-500 hover:bg-pw-50 hover:text-slate-700",
@@ -94,7 +98,7 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 							key={cat.name}
 							onClick={() => selectCategory(active ? null : cat.name)}
 							className={cn(
-								"w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors duration-150 group",
+								"w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors duration-150 cursor-pointer select-none group",
 								active
 									? "bg-ac-100 text-ac-600 font-medium"
 									: "text-slate-500 hover:bg-pw-50 hover:text-slate-700",
@@ -110,9 +114,10 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 								}}
 								title={t("sidebar.editIcon")}
 								className={cn(
-									"w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all",
-									active ? "bg-ac-200 text-ac-600" : "bg-slate-100 text-slate-400",
-									"hover:ring-2 hover:ring-pw-300 hover:ring-offset-1 hover:scale-110",
+									"w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors",
+									active
+										? "bg-ac-200 text-ac-600 hover:bg-ac-300"
+										: "bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600",
 								)}
 							>
 								<CategoryIcon def={cat} size={11} />
@@ -125,14 +130,16 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 
 				{/* Add category */}
 				<div className="pt-1">
-					<GhostButton
+					<Button
+						variant="ghost"
+						size="sm"
 						onClick={() => setModalTarget("new")}
 						fullWidth
-						className="px-3 py-1.5 text-xs gap-2 rounded-lg"
+						className="gap-2"
 					>
 						<Plus size={12} />
 						{t("sidebar.newCategory")}
-					</GhostButton>
+					</Button>
 				</div>
 			</div>
 

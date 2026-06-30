@@ -3,7 +3,7 @@ import { useRef } from "react";
 
 import type { Entry } from "@/domain/types";
 import { useI18n } from "@/i18n";
-import { DashedButton, IconButton } from "../ui";
+import { Button, IconButton } from "../ui";
 
 function formatBytes(bytes: number) {
     if (bytes < 1024) return `${bytes} B`;
@@ -43,10 +43,10 @@ export function AttachmentList({ attachments, onAdd, onRemove }: AttachmentListP
                 </div>
             ))}
 
-            <DashedButton onClick={() => fileRef.current?.click()}>
+            <Button variant="dashed" onClick={() => fileRef.current?.click()}>
                 <Paperclip size={13} />
                 {t("attachment.add")}
-            </DashedButton>
+            </Button>
 
             <input
                 ref={fileRef}

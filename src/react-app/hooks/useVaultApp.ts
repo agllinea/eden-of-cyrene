@@ -79,6 +79,7 @@ export function useVaultApp() {
 		updateCategory: document.updateCategory,
 		updateVaultName: document.updateVaultName,
 		addAttachment: document.addAttachment,
+		dropCustomPropInCategory: document.dropCustomPropInCategory,
 		saveEntry,
 		deleteEntry,
 
@@ -96,8 +97,6 @@ export function useVaultApp() {
 		setEditingEntry: ui.setEditingEntry,
 		settingsOpen: ui.settingsOpen,
 		setSettingsOpen: ui.setSettingsOpen,
-		viewMode: ui.viewMode,
-		setViewMode: ui.setViewMode,
 		tableColumns: ui.tableColumns,
 		visibleEntries: ui.visibleEntries,
 		openNewEntry: ui.openNewEntry,

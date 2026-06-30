@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { useState } from "react";
 
 import { useI18n } from "@/i18n";
-import { Button, GhostButton, PasswordInput, TextButton } from "../ui";
+import { Button, Input } from "../ui";
 import { App, Card, cardMotion } from "./shared";
 
 export function UnlockCard({ app }: { app: App }) {
@@ -28,15 +28,19 @@ export function UnlockCard({ app }: { app: App }) {
 		<motion.div {...cardMotion}>
 			<Card>
 				<div className="flex items-center gap-1 -ml-2 mb-6">
-					<GhostButton onClick={app.goBackFromUnlock} className="p-2">
-						<ChevronLeft size={18} strokeWidth={2.5} />
-					</GhostButton>
+					<Button
+						variant="ghost"
+						icon={<ChevronLeft size={18} strokeWidth={2.5} />}
+						onClick={app.goBackFromUnlock}
+						className="p-2"
+					/>
 					<h2 className="text-base font-semibold text-slate-700">{t("unlock.title")}</h2>
 				</div>
 
 				<div className="space-y-4">
 					{isPasswordMode ? (
-						<PasswordInput
+						<Input
+							password
 							placeholder={t("unlock.password")}
 							value={app.unlockPassword}
 							autoFocus
@@ -51,7 +55,8 @@ export function UnlockCard({ app }: { app: App }) {
 									<label className="block text-xs font-medium text-slate-500 mb-1.5">
 										{t("unlock.questionLabel", { n: i + 1, q: q.question })}
 									</label>
-									<PasswordInput
+									<Input
+										password
 										placeholder={t("unlock.answer")}
 										value={app.unlockAnswers[q.id] ?? ""}
 										disabled={loading}
@@ -77,15 +82,15 @@ export function UnlockCard({ app }: { app: App }) {
 					</Button>
 
 					{isPasswordMode && app.securitySlot && (
-						<TextButton onClick={() => app.setUnlockMode("questions")} className="w-full py-2 text-sm">
+						<Button variant="link" onClick={() => app.setUnlockMode("questions")} className="w-full py-2 text-sm">
 							<ShieldQuestion size={14} />
 							{t("unlock.useQuestions")}
-						</TextButton>
+						</Button>
 					)}
 					{!isPasswordMode && app.passwordSlot && (
-						<TextButton onClick={() => app.setUnlockMode("password")} className="w-full py-2 text-sm">
+						<Button variant="link" onClick={() => app.setUnlockMode("password")} className="w-full py-2 text-sm">
 							{t("unlock.usePassword")}
-						</TextButton>
+						</Button>
 					)}
 				</div>
 			</Card>

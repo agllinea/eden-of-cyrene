@@ -3,8 +3,7 @@ import { useState } from "react";
 
 import type { VaultApp } from "@/hooks/useVaultApp";
 import { useI18n } from "@/i18n";
-import { CardButton } from "../ui";
-import { EntryCardList } from "./EntryCardList";
+import { Button } from "../ui";
 import EntryModal from "./EntryModal";
 import { EntryTable } from "./EntryTable";
 import SettingsModal from "./SettingsModal";
@@ -34,21 +33,7 @@ function EntryListArea({ app }: { app: VaultApp }) {
 		);
 	}
 
-	// Desktop is always a table; mobile uses the user's chosen view.
-	return (
-		<>
-			<div className="hidden md:block h-full">
-				<EntryTable app={app} />
-			</div>
-			<div className="md:hidden h-full">
-				{app.viewMode === "table" ? (
-					<EntryTable app={app} />
-				) : (
-					<EntryCardList app={app} />
-				)}
-			</div>
-		</>
-	);
+	return <EntryTable app={app} />;
 }
 
 export default function VaultPage({ app }: { app: VaultApp }) {
@@ -75,7 +60,8 @@ export default function VaultPage({ app }: { app: VaultApp }) {
 
 					{/* FAB — kept clear of the home indicator on notched phones */}
 					<div className="absolute fab-safe">
-						<CardButton
+						<Button
+							variant="primary"
 							onClick={app.openNewEntry}
 							aria-label={t("fab.newEntry")}
 							icon={<Plus size={24} strokeWidth={2} />}
@@ -94,6 +80,7 @@ export default function VaultPage({ app }: { app: VaultApp }) {
 					onDelete={app.deleteEntry}
 					onClose={() => app.setEditingEntry(null)}
 					onAddAttachment={app.addAttachment}
+					onDropCustomPropInCategory={app.dropCustomPropInCategory}
 				/>
 			)}
 

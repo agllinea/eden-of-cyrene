@@ -1,13 +1,13 @@
 import { Pencil } from "lucide-react";
 
 import type { CategoryDef, Entry } from "@/domain/types";
+import { useCopy } from "@/hooks/useCopy";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import type { VaultApp } from "@/hooks/useVaultApp";
 import { FIXED_COLUMNS, type FixedColumn } from "@/hooks/useVaultUI";
 import { useI18n, type TFunction } from "@/i18n";
-import { IconButton } from "../ui";
+import { cn, CopyButton, IconButton } from "../ui";
 import { CategoryIcon } from "./CategoryIcon";
-import { CopyButton } from "./CopyButton";
-import { PasswordField } from "./PasswordField";
 
 type App = VaultApp;
 
@@ -17,15 +17,14 @@ function isFixedColumn(col: string): col is FixedColumn {
 	return FIXED.has(col);
 }
 
-// Localized header for a column key; custom-property columns keep their raw name.
 function columnLabel(col: string, t: TFunction): string {
 	return isFixedColumn(col) ? t(`column.${col}`) : col;
 }
 
-// ── Category cell ─────────────────────────────────────────────────────────────
+const dash = <span className="text-slate-300">—</span>;
 
 function CategoryCell({ name, def }: { name: string | null; def: CategoryDef | null }) {
-	if (!name) return <span className="text-slate-300">—</span>;
+	if (!name) return dash;
 	return (
 		<span className="inline-flex items-center gap-1.5 text-sm">
 			{def && (
@@ -38,8 +37,6 @@ function CategoryCell({ name, def }: { name: string | null; def: CategoryDef | n
 	);
 }
 
-// ── Cell value helper ─────────────────────────────────────────────────────────
-
 function getCellValue(entry: Entry, col: string): string {
 	switch (col) {
 		case "name":      return entry.name;
@@ -51,71 +48,121 @@ function getCellValue(entry: Entry, col: string): string {
 	}
 }
 
-// ── Entry table (assumes a non-empty visible list; empties handled upstream) ───
+function Cell({
+	children,
+	copyValue,
+	showCopy,
+}: {
+	children: React.ReactNode;
+	copyValue: string;
+	showCopy: boolean;
+}) {
+	return (
+		<span className="flex items-center justify-between gap-2 w-full group/cell">
+			<span className="min-w-0 truncate">{children}</span>
+			{showCopy && copyValue && (
+				<CopyButton
+					value={copyValue}
+					size={12}
+					className="shrink-0 -mr-2 opacity-0 group-hover/cell:opacity-100 transition-opacity"
+				/>
+			)}
+		</span>
+	);
+}
 
 export function EntryTable({ app }: { app: App }) {
 	const { t } = useI18n();
+	const copy = useCopy();
+	const isTouch = useMediaQuery("(hover: none)");
 
 	return (
-		<div className="overflow-auto h-full">
+		<div className="overflow-auto h-full bg-white">
 			<table className="w-full min-w-max text-sm">
-				<thead className="sticky top-0 bg-pw-50/95 backdrop-blur-sm border-b border-pw-100">
+				<thead className="sticky top-0 z-20 bg-linear-to-r from-pw-100 to-ac-100 backdrop-blur-sm border-b border-pw-100">
 					<tr>
-						{app.tableColumns.map((col) => (
+						{app.tableColumns.map((col, i) => (
 							<th
 								key={col}
-								className="px-4 py-3 text-left text-xs font-semibold text-slate-500 whitespace-nowrap"
+								className={cn(
+									"px-4 py-3 text-left text-xs font-semibold text-slate-600 whitespace-nowrap",
+									// Freeze name column on touch only
+									i === 0 && isTouch && "sticky left-0 z-30 bg-pw-100",
+									i >= 1 && "border-l border-white",
+								)}
 							>
 								{columnLabel(col, t)}
 							</th>
 						))}
-						<th className="w-10 px-2 py-3" />
+						{/* Floating edit column — touch only */}
+						{isTouch && <th className="sticky right-0 z-30 bg-ac-100 w-10 px-2 py-3 border-l border-white" />}
 					</tr>
 				</thead>
-				<tbody className="divide-y divide-pw-50">
+				<tbody>
 					{app.visibleEntries.map((entry) => (
 						<tr
 							key={entry.id}
 							onClick={() => app.setEditingEntry(entry)}
-							className="hover:bg-pw-50/60 cursor-pointer transition-colors duration-100 group"
+							className="border-b border-slate-100 cursor-pointer transition-colors duration-100 group"
 						>
-							{app.tableColumns.map((col) => (
-								<td
-									key={col}
-									className="px-4 py-3 text-slate-700 whitespace-nowrap max-w-50"
-								>
-									{col === "password" ? (
-										<PasswordField value={entry.password} revealCopyOnHover />
-									) : col === "category" ? (
+							{app.tableColumns.map((col, i) => {
+								const value = getCellValue(entry, col);
+								let content: React.ReactNode;
+								if (col === "password") {
+									content = value ? (
+										<span className="font-mono text-xs">••••••</span>
+									) : (
+										dash
+									);
+								} else if (col === "category") {
+									content = (
 										<CategoryCell
 											name={entry.category}
 											def={app.categoryOptions.find((c) => c.name === entry.category) ?? null}
 										/>
-									) : col === "loginName" && entry.loginName ? (
-										<span className="inline-flex items-center gap-1 max-w-full">
-											<span className="truncate text-sm">{entry.loginName}</span>
-											<CopyButton value={entry.loginName} size={12} revealOnHover />
-										</span>
-									) : (
-										<span className="truncate block text-sm">
-											{getCellValue(entry, col) || (
-												<span className="text-slate-300">—</span>
-											)}
-										</span>
-									)}
+									);
+								} else {
+									content = value || dash;
+								}
+
+								return (
+									<td
+										key={col}
+										onClick={
+											isTouch
+												? (e) => {
+														e.stopPropagation();
+														if (value) void copy(value);
+													}
+												: undefined
+										}
+										className={cn(
+											"px-4 py-1 text-slate-700 whitespace-nowrap max-w-50",
+											// Freeze name on touch with a right shadow as separator
+											i === 0 && isTouch && "sticky left-0 z-10 bg-white shadow-[2px_0_8px_rgba(0,0,0,0.06)]",
+											i >= 1 && "border-l border-slate-100",
+										)}
+									>
+										<Cell copyValue={value} showCopy={!isTouch}>
+											{content}
+										</Cell>
+									</td>
+								);
+							})}
+							{/* Floating edit button — touch only, sticks to the right edge */}
+							{isTouch && (
+								<td className="sticky right-0 z-10 bg-white w-10 px-2 py-1 border-l border-slate-100">
+									<IconButton
+										variant="copy"
+										onClick={(e) => {
+											e.stopPropagation();
+											app.setEditingEntry(entry);
+										}}
+									>
+										<Pencil size={13} />
+									</IconButton>
 								</td>
-							))}
-							<td className="px-2 py-3">
-								<IconButton
-									variant="row"
-									onClick={(e) => {
-										e.stopPropagation();
-										app.setEditingEntry(entry);
-									}}
-								>
-									<Pencil size={13} />
-								</IconButton>
-							</td>
+							)}
 						</tr>
 					))}
 				</tbody>

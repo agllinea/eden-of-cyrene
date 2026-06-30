@@ -110,24 +110,24 @@ context** (`SessionCrypto`) after unlock/create:
 - Layout is responsive: `md:` breakpoint switches the sidebar between a static
   desktop panel and a slide-in mobile drawer (hamburger in the header). Heights
   use `dvh` (handles the mobile URL bar).
-- **Touch:** never gate an essential control behind `:hover` alone. Hover-reveal
+- **Touch:** never gate an essential control behind `:hover` alone. Reveal-on-hover
   uses `[@media(hover:hover)]:` so touch devices (no hover) keep controls visible
-  (see `btnIconRow` in `button/tokens.ts`).
+  (e.g. `rowReveal` in `EntryTable.tsx`). `useMediaQuery("(hover: none)")` drives
+  the touch/pointer behaviour split in JS.
 - **iOS zoom:** inputs are `text-base md:text-sm` (≥16px on mobile) so Safari does
   not auto-zoom on focus.
 - **Safe areas:** `index.html` sets `viewport-fit=cover`; edge-anchored UI (header,
   FAB, toaster, sidebar) uses the `pt-safe` / `pb-safe-4` / `fab-safe` utilities
   in `index.css` (no-ops on non-notched devices).
-- **Entry list views:** desktop is always the `EntryTable`; mobile defaults to
-  `EntryCardList` (name / login / password) and can toggle to the table via the
-  header button (persisted in `localStorage`, see `useVaultUI` `viewMode`). Empty
-  / no-match states live in `VaultPage` (`EntryListArea`), so the list components
-  assume a non-empty list. The category column/tag is hidden when filtered to a
-  single category (redundant).
-- **Copy:** every value is one-tap copyable via `CopyButton` (`useCopy` →
-  clipboard + toast). Quick-copy for password/login lives in the list; the detail
-  modal copies every field including custom properties. `PasswordField`
-  (mask + reveal + copy) is shared by the table and the card.
+- **Entry list = `EntryTable` everywhere** (no card view). Empty / no-match states
+  live in `VaultPage` (`EntryListArea`), so the table assumes a non-empty list.
+  The category column is hidden when filtered to a single category (redundant).
+  The edit column + name column are frozen (`position: sticky` left) so they stay
+  put on horizontal scroll.
+- **Copy:** values are one-tap copyable via `CopyButton` (`useCopy` → clipboard +
+  toast). Desktop: per-cell hover reveals the trailing copy button; the detail
+  modal copies every field incl. custom properties. Touch: copy buttons are hidden
+  and tapping a cell copies its value (the frozen edit button opens the modal).
 - **PWA:** installable + offline via `public/manifest.webmanifest` and a
   network-first-navigation / cache-first-assets service worker (`public/sw.js`),
   registered in `main.tsx` **production-only**. Vault data is never cached by the
@@ -159,3 +159,11 @@ validation + migration) are now done. Remaining lower-priority follow-ups:
 - Components receive the composed app object as `app` (e.g. `function X({ app }: { app: VaultApp }) `).
 - New/edited files should import via the `@/` alias.
 - Indentation: tabs (most files). There is no Prettier/Biome config yet.
+- **Buttons** (`components/button/`) are exactly three, one per role — don't add
+  more button components:
+  - `Button` — every text button. `variant`: `primary | secondary | ghost |
+    danger | link | dashed`; `size`; `fullWidth`; `icon` (icon + no children →
+    square icon button). The one ghost look is neutral grey.
+  - `IconButton` — small icon-only actions (`del | x | eye | row | copy`).
+  - `OptionCard` — the big icon + title + sub-text selection card (login screen).
+  - All styling lives in `tokens.ts` `cls`, keyed by role (single source of truth).

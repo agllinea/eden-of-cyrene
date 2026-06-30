@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn, IconButton } from "../button";
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
@@ -12,18 +13,22 @@ interface ModalProps {
 	size?: "sm" | "md" | "lg" | "xl";
 }
 
+// On mobile (< md): full-width bottom sheet, no bottom radius.
+// On desktop:       centered with a max-width constraint and full radius.
 const modalSizeCls = {
-	sm: "max-w-sm",
-	md: "max-w-md",
-	lg: "max-w-lg",
-	xl: "max-w-2xl",
+	sm: "md:max-w-sm",
+	md: "md:max-w-md",
+	lg: "md:max-w-lg",
+	xl: "md:max-w-2xl",
 };
 
 export function Modal({ isOpen, onClose, children, size = "md" }: ModalProps) {
+	const isMobile = useMediaQuery("(max-width: 767px)");
+
 	return (
 		<AnimatePresence>
 			{isOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+				<div className="fixed inset-0 z-50 flex items-end md:items-center md:justify-center md:p-4">
 					<motion.div
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -33,13 +38,16 @@ export function Modal({ isOpen, onClose, children, size = "md" }: ModalProps) {
 						onClick={onClose}
 					/>
 					<motion.div
-						initial={{ opacity: 0, scale: 0.96, y: 12 }}
-						animate={{ opacity: 1, scale: 1, y: 0 }}
-						exit={{ opacity: 0, scale: 0.96, y: 8 }}
-						transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+						initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 12 }}
+						animate={isMobile ? { y: 0 }   : { opacity: 1, scale: 1,    y: 0  }}
+						exit={isMobile    ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 8  }}
+						transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
 						className={cn(
-							"relative bg-white rounded-3xl shadow-2xl shadow-pw-300/20 w-full",
-							"max-h-[90vh] flex flex-col overflow-hidden",
+							"relative bg-white shadow-2xl shadow-pw-300/20 w-full",
+							"max-h-[90dvh] flex flex-col overflow-hidden",
+							// Mobile: top radius only (bottom flush with screen edge).
+							// Desktop: full radius via md:rounded-b-3xl.
+							"rounded-t-3xl md:rounded-b-3xl",
 							modalSizeCls[size],
 						)}
 					>
@@ -96,7 +104,7 @@ export function ModalBody({
 
 export function ModalFooter({ children }: { children: React.ReactNode }) {
 	return (
-		<div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-pw-100 flex-shrink-0">
+		<div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-pw-100 flex-shrink-0 pb-safe-4 md:pb-4">
 			{children}
 		</div>
 	);

@@ -2,7 +2,7 @@ import { ChevronLeft } from "lucide-react";
 import { motion } from "motion/react";
 
 import { useI18n } from "@/i18n";
-import { CardButton, FloatingInput, FloatingPasswordInput, GhostButton } from "../ui";
+import { Button, FloatingInput, FloatingPasswordInput } from "../ui";
 import { App, Card, cardMotion } from "./shared";
 
 export function SetupPasswordCard({ app }: { app: App }) {
@@ -11,9 +11,12 @@ export function SetupPasswordCard({ app }: { app: App }) {
 		<motion.div {...cardMotion}>
 			<Card>
 				<div className="flex items-center gap-1 -ml-2 mb-6">
-					<GhostButton onClick={app.goBackFromSetupPassword} className="p-2">
-						<ChevronLeft size={18} strokeWidth={2.5} />
-					</GhostButton>
+					<Button
+						variant="ghost"
+						icon={<ChevronLeft size={18} strokeWidth={2.5} />}
+						onClick={app.goBackFromSetupPassword}
+						className="p-2"
+					/>
 					<h2 className="text-base font-semibold text-slate-700">{t("setup.title")}</h2>
 				</div>
 
@@ -34,13 +37,13 @@ export function SetupPasswordCard({ app }: { app: App }) {
 				</div>
 
 				<div className="mt-8 space-y-2">
-					<CardButton fullWidth onClick={app.continueWithPassword}>
+					<Button variant="primary" fullWidth onClick={app.continueWithPassword}>
 						{t("setup.next")}
-					</CardButton>
+					</Button>
 
-					<GhostButton onClick={app.createVaultWithoutPassword} fullWidth className="py-2 text-sm justify-center">
+					<Button variant="ghost" onClick={app.createVaultWithoutPassword} fullWidth className="py-2 text-sm justify-center">
 						{t("setup.noPassword")}
-					</GhostButton>
+					</Button>
 				</div>
 			</Card>
 		</motion.div>

@@ -91,8 +91,10 @@ export const zh: Record<MessageKey, string> = {
 	"attachment.add": "添加附件",
 
 	// ── Custom properties ──
-	"customProps.confirmDelete": "删除 “{key}”？",
-	"customProps.value": "值",
+	"customProps.deleteTitle": "删除自定义字段",
+	"customProps.deleteBodyWithCategory": "确认删除「{key}」？此操作还将从「{category}」类别下所有记录中移除该字段。",
+	"customProps.deleteBodyNoCategory": "确认从当前记录中删除「{key}」？",
+	"customProps.value": "値",
 	"customProps.key": "属性名",
 	"customProps.add": "添加属性",
 
@@ -196,10 +198,6 @@ export const zh: Record<MessageKey, string> = {
 	"icon.ShoppingCart": "购物车",
 	"icon.ShoppingBag": "购物",
 	"icon.Zap": "能源",
-
-	// ── View toggle ──
-	"view.card": "卡片视图",
-	"view.table": "表格视图",
 
 	// ── Misc ──
 	"a11y.close": "关闭",

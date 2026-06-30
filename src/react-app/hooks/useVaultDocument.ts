@@ -65,6 +65,22 @@ export function useVaultDocument() {
 		[],
 	);
 
+	const dropCustomPropInCategory = useCallback(
+		(propKey: string, category: string) =>
+			setVault((current) =>
+				touchVault({
+					...current,
+					entries: current.entries.map((e) => {
+						if (e.category !== category || !(propKey in e.customProperties)) return e;
+						const next = { ...e.customProperties };
+						delete next[propKey];
+						return { ...e, customProperties: next };
+					}),
+				}),
+			),
+		[],
+	);
+
 	const updateVaultName = useCallback(
 		(name: string) =>
 			setVault((current) => touchVault({ ...current, name })),
@@ -101,6 +117,7 @@ export function useVaultDocument() {
 		addCategory,
 		updateCategory,
 		updateVaultName,
+		dropCustomPropInCategory,
 		addAttachment,
 	};
 }

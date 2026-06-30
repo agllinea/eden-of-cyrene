@@ -90,7 +90,9 @@ export const en = {
 	"attachment.add": "Add attachment",
 
 	// ── Custom properties ──
-	"customProps.confirmDelete": "Delete “{key}”?",
+	"customProps.deleteTitle": "Delete Field",
+	"customProps.deleteBodyWithCategory": "Delete {key}? This will also remove it from all {category} entries.",
+	"customProps.deleteBodyNoCategory": "Delete {key} from this entry?",
 	"customProps.value": "Value",
 	"customProps.key": "Property name",
 	"customProps.add": "Add property",
@@ -195,10 +197,6 @@ export const en = {
 	"icon.ShoppingCart": "Cart",
 	"icon.ShoppingBag": "Shopping",
 	"icon.Zap": "Energy",
-
-	// ── View toggle ──
-	"view.card": "Card view",
-	"view.table": "Table view",
 
 	// ── Misc ──
 	"a11y.close": "Close",

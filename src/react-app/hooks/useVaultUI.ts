@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { createEmptyEntry, type Entry, type Vault } from "@/domain/types";
 import {
@@ -18,32 +18,12 @@ export const FIXED_COLUMNS = [
 
 export type FixedColumn = (typeof FIXED_COLUMNS)[number];
 
-// Mobile list rendering. Desktop is always a table; mobile defaults to cards and
-// remembers the user's toggle.
-export type ViewMode = "card" | "table";
-const VIEW_KEY = "eden-view";
-
-function readViewMode(): ViewMode {
-	if (typeof window === "undefined") return "card";
-	return window.localStorage.getItem(VIEW_KEY) === "table" ? "table" : "card";
-}
-
 /** Owns transient view state (search, selection, open modals) and derived lists. */
 export function useVaultUI(vault: Vault) {
 	const [searchText, setSearchText] = useState("");
 	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 	const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
 	const [settingsOpen, setSettingsOpen] = useState(false);
-	const [viewMode, setViewModeState] = useState<ViewMode>(readViewMode);
-
-	const setViewMode = useCallback((mode: ViewMode) => {
-		setViewModeState(mode);
-		try {
-			window.localStorage.setItem(VIEW_KEY, mode);
-		} catch {
-			// ignore storage failures (private mode, etc.)
-		}
-	}, []);
 
 	const tableColumns = useMemo<string[]>(() => {
 		// Hide the category column when filtered to one category — it's redundant.
@@ -95,8 +75,6 @@ export function useVaultUI(vault: Vault) {
 		setEditingEntry,
 		settingsOpen,
 		setSettingsOpen,
-		viewMode,
-		setViewMode,
 		tableColumns,
 		visibleEntries,
 		openNewEntry,

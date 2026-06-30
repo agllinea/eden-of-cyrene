@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 
 import type { CategoryDef } from "@/domain/types";
 import { useI18n } from "@/i18n";
-import { Input, Modal, ModalHeader, ModalBody, ModalFooter, SectionLabel, cn, CardButton, GhostButton, IconButton, DashedButton } from "../ui";
+import { Button, Input, Modal, ModalHeader, ModalBody, ModalFooter, SectionLabel, cn, IconButton } from "../ui";
 import { ICON_LIST } from "./CategoryIcon";
 
 // Max size for uploaded images (bytes). Base64 overhead adds ~33%.
@@ -123,10 +123,10 @@ export default function CategoryModal({
 							</div>
 						)}
 
-						<DashedButton onClick={() => fileRef.current?.click()}>
+						<Button variant="dashed" onClick={() => fileRef.current?.click()}>
 							<Upload size={14} />
 							{def.imageDataUrl ? t("categoryModal.reupload") : t("categoryModal.upload")}
-						</DashedButton>
+						</Button>
 
 						<p className="text-xs text-slate-400 text-center">
 							{t("categoryModal.imageHint")}
@@ -140,12 +140,12 @@ export default function CategoryModal({
 			</ModalBody>
 
 			<ModalFooter>
-				<GhostButton onClick={onClose}>
+				<Button variant="ghost" onClick={onClose}>
 					{t("common.cancel")}
-				</GhostButton>
-				<CardButton onClick={handleSave} disabled={!canSave} icon={<Save size={15}/>}>
+				</Button>
+				<Button variant="primary" onClick={handleSave} disabled={!canSave} icon={<Save size={15}/>}>
 					{t("common.save")}
-				</CardButton>
+				</Button>
 			</ModalFooter>
 
 			<input

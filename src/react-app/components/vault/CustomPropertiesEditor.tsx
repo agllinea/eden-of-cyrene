@@ -2,8 +2,7 @@ import { Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
 
 import { useI18n } from "@/i18n";
-import { cn, DashedButton, GhostButton, IconButton } from "../ui";
-import { CopyButton } from "./CopyButton";
+import { Button, CopyButton, IconButton, cn } from "../ui";
 
 // Two modes to avoid the "focus vanishes on first keystroke" bug:
 //   • Existing: key shown as a read-only label; value is an input; delete needs confirmation.
@@ -18,24 +17,19 @@ type NewRow = { id: string; key: string; value: string };
 interface CustomPropertiesEditorProps {
     properties: Record<string, string>;
     onChange: (p: Record<string, string>) => void;
+    /** Called when the user clicks the delete icon; the caller shows the confirmation modal. */
+    onDeleteKey: (key: string) => void;
 }
 
-export function CustomPropertiesEditor({ properties, onChange }: CustomPropertiesEditorProps) {
+export function CustomPropertiesEditor({ properties, onChange, onDeleteKey }: CustomPropertiesEditorProps) {
     const { t } = useI18n();
     const [newRows, setNewRows] = useState<NewRow[]>([]);
-    const [deletingKey, setDeletingKey] = useState<string | null>(null);
+    const [focusedKey, setFocusedKey] = useState<string | null>(null);
 
     // ── Existing ──────────────────────────────────────────────────────────────
 
     const updateValue = (key: string, val: string) =>
         onChange({ ...properties, [key]: val });
-
-    const confirmDelete = (key: string) => {
-        const next = { ...properties };
-        delete next[key];
-        onChange(next);
-        setDeletingKey(null);
-    };
 
     // ── New rows ──────────────────────────────────────────────────────────────
 
@@ -67,55 +61,51 @@ export function CustomPropertiesEditor({ properties, onChange }: CustomPropertie
     return (
         <div className="space-y-2">
             {/* ── Existing properties ── */}
-            {Object.entries(properties).map(([key, val]) =>
-                deletingKey === key ? (
-                    <div
-                        key={key}
-                        className="flex items-center gap-2 px-3 py-2.5 bg-red-50 rounded-xl border border-red-100"
-                    >
-                        <span className="flex-1 text-sm text-red-700 truncate">
-                            {t("customProps.confirmDelete", { key })}
-                        </span>
-                        <button
-                            type="button"
-                            onClick={() => confirmDelete(key)}
-                            className="px-2.5 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-colors"
-                        >
-                            {t("common.confirm")}
-                        </button>
-                        <GhostButton type="button" onClick={() => setDeletingKey(null)}>
-                            {t("common.cancel")}
-                        </GhostButton>
+            {Object.entries(properties).map(([key, val]) => (
+                <div key={key} className="flex flex-col md:flex-row gap-1.5 md:gap-2 md:items-center">
+                    {/* Line 1 (mobile) / left cell (desktop): key label */}
+                    <div className="px-3 py-2 rounded-lg bg-pw-50 border border-pw-100 text-sm text-slate-500 font-medium truncate md:w-2/5 md:shrink-0">
+                        {key}
                     </div>
-                ) : (
-                    <div key={key} className="flex gap-2 items-center">
-                        <div className="w-2/5 px-3 py-2 rounded-lg bg-pw-50 border border-pw-100 text-sm text-slate-500 font-medium truncate shrink-0">
-                            {key}
+                    {/* Line 2 (mobile) / right cells (desktop): value + delete */}
+                    <div className="flex gap-2 items-center flex-1">
+                        <div className="relative flex-1">
+                            <input
+                                value={val}
+                                onChange={(e) => updateValue(key, e.target.value)}
+                                onFocus={() => setFocusedKey(key)}
+                                onBlur={() => setFocusedKey(null)}
+                                placeholder={t("customProps.value")}
+                                className={cn(inputCls, "w-full pr-10")}
+                            />
+                            <div
+                                className="absolute right-1.5 top-1/2 -translate-y-1/2"
+                                onMouseDown={(e) => e.preventDefault()}
+                            >
+                                <CopyButton
+                                    value={val}
+                                    size={13}
+                                    className={focusedKey === key ? "border-slate-200! shadow-sm!" : "border-transparent! shadow-none!"}
+                                />
+                            </div>
                         </div>
-                        <input
-                            value={val}
-                            onChange={(e) => updateValue(key, e.target.value)}
-                            placeholder={t("customProps.value")}
-                            className={cn(inputCls, "flex-1")}
-                        />
-                        <CopyButton value={val} className="shrink-0" />
                         <IconButton
                             variant="del"
-                            onClick={() => setDeletingKey(key)}
+                            onClick={() => onDeleteKey(key)}
                             className="p-2 shrink-0"
                             title={t("common.delete")}
                         >
                             <Trash2 size={14} />
                         </IconButton>
                     </div>
-                ),
-            )}
+                </div>
+            ))}
 
             {/* ── New (uncommitted) rows ── */}
             {newRows.map((row) => (
                 <div
                     key={row.id}
-                    className="flex gap-2 items-center"
+                    className="flex flex-col md:flex-row gap-1.5 md:gap-2 md:items-center"
                     // Commit when focus leaves the entire row
                     onBlur={(e) => {
                         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
@@ -123,6 +113,7 @@ export function CustomPropertiesEditor({ properties, onChange }: CustomPropertie
                         }
                     }}
                 >
+                    {/* Line 1 (mobile) / left cell (desktop): key input */}
                     <input
                         autoFocus
                         value={row.key}
@@ -132,33 +123,36 @@ export function CustomPropertiesEditor({ properties, onChange }: CustomPropertie
                             if (e.key === "Enter") { e.preventDefault(); commitNew(row.id); }
                             if (e.key === "Escape") discardNew(row.id);
                         }}
-                        className={cn(inputCls, "w-2/5")}
+                        className={cn(inputCls, "w-full md:w-2/5")}
                     />
-                    <input
-                        value={row.value}
-                        placeholder={t("customProps.value")}
-                        onChange={(e) => updateNew(row.id, "value", e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") { e.preventDefault(); commitNew(row.id); }
-                            if (e.key === "Escape") discardNew(row.id);
-                        }}
-                        className={cn(inputCls, "flex-1")}
-                    />
-                    <IconButton
-                        variant="del"
-                        onClick={() => discardNew(row.id)}
-                        className="p-2 shrink-0"
-                        title={t("common.cancel")}
-                    >
-                        <X size={14} />
-                    </IconButton>
+                    {/* Line 2 (mobile) / right cells (desktop): value + cancel */}
+                    <div className="flex gap-2 items-center flex-1">
+                        <input
+                            value={row.value}
+                            placeholder={t("customProps.value")}
+                            onChange={(e) => updateNew(row.id, "value", e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") { e.preventDefault(); commitNew(row.id); }
+                                if (e.key === "Escape") discardNew(row.id);
+                            }}
+                            className={cn(inputCls, "flex-1")}
+                        />
+                        <IconButton
+                            variant="del"
+                            onClick={() => discardNew(row.id)}
+                            className="p-2 shrink-0"
+                            title={t("common.cancel")}
+                        >
+                            <X size={14} />
+                        </IconButton>
+                    </div>
                 </div>
             ))}
 
-            <DashedButton onClick={addNew}>
+            <Button variant="dashed" onClick={addNew}>
                 <Plus size={13} />
                 {t("customProps.add")}
-            </DashedButton>
+            </Button>
         </div>
     );
 }

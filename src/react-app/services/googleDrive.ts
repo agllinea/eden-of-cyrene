@@ -53,7 +53,7 @@ export function unlinkVaultFromDrive(vaultCreatedAt: string): void {
 // ── Google Identity Services (GIS) ────────────────────────────────────────────
 
 // Minimal type surface for the GIS token client.
-type GsiTokenClient = { requestAccessToken: () => void };
+type GsiTokenClient = { requestAccessToken: (override?: { prompt?: string; hint?: string }) => void };
 type GsiTokenResponse = { access_token: string; expires_in: number; error?: string };
 
 declare const google: {
@@ -128,7 +128,7 @@ export async function signIn(): Promise<string> {
 	return new Promise<string>((resolve, reject) => {
 		pendingAuth = { resolve, reject };
 		tokenClient ??= buildTokenClient();
-		tokenClient.requestAccessToken();
+		tokenClient.requestAccessToken({ prompt: "select_account" });
 	});
 }
 

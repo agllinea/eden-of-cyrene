@@ -1,6 +1,7 @@
 {
 	"name": "eden-of-cyrene",
-	"description": "A template for building a React application with Vite, Hono, and Cloudflare Workers",
+	"version": "0.1.0",
+	"description": "A personal secret management app.",
 	"cloudflare": {
 		"label": "Vite React Template",
 		"products": [

@@ -1,5 +1,4 @@
-import { Eye, EyeOff, Pencil, Plus } from "lucide-react";
-import { useState } from "react";
+import { Pencil } from "lucide-react";
 
 import type { CategoryDef, Entry } from "@/domain/types";
 import type { VaultApp } from "@/hooks/useVaultApp";
@@ -7,6 +6,8 @@ import { FIXED_COLUMNS, type FixedColumn } from "@/hooks/useVaultUI";
 import { useI18n, type TFunction } from "@/i18n";
 import { IconButton } from "../ui";
 import { CategoryIcon } from "./CategoryIcon";
+import { CopyButton } from "./CopyButton";
+import { PasswordField } from "./PasswordField";
 
 type App = VaultApp;
 
@@ -19,27 +20,6 @@ function isFixedColumn(col: string): col is FixedColumn {
 // Localized header for a column key; custom-property columns keep their raw name.
 function columnLabel(col: string, t: TFunction): string {
 	return isFixedColumn(col) ? t(`column.${col}`) : col;
-}
-
-// ── Password cell ─────────────────────────────────────────────────────────────
-
-function PasswordCell({ value }: { value: string }) {
-	const [show, setShow] = useState(false);
-	if (!value) return <span className="text-slate-300">—</span>;
-	return (
-		<span className="inline-flex items-center gap-1.5">
-			<span className="font-mono text-xs">{show ? value : "••••••"}</span>
-			<IconButton
-				variant="eye"
-				onClick={(e) => {
-					e.stopPropagation();
-					setShow((s) => !s);
-				}}
-			>
-				{show ? <EyeOff size={12} /> : <Eye size={12} />}
-			</IconButton>
-		</span>
-	);
 }
 
 // ── Category cell ─────────────────────────────────────────────────────────────
@@ -71,30 +51,10 @@ function getCellValue(entry: Entry, col: string): string {
 	}
 }
 
-// ── Entry table ───────────────────────────────────────────────────────────────
+// ── Entry table (assumes a non-empty visible list; empties handled upstream) ───
 
 export function EntryTable({ app }: { app: App }) {
 	const { t } = useI18n();
-
-	if (app.vault.entries.length === 0) {
-		return (
-			<div className="flex flex-col items-center justify-center h-full text-center p-8">
-				<div className="w-16 h-16 bg-pw-100 rounded-2xl flex items-center justify-center mb-4">
-					<Plus className="w-8 h-8 text-pw-400" />
-				</div>
-				<p className="text-slate-500 font-medium mb-1">{t("table.empty.title")}</p>
-				<p className="text-sm text-slate-400">{t("table.empty.hint")}</p>
-			</div>
-		);
-	}
-
-	if (app.visibleEntries.length === 0) {
-		return (
-			<div className="flex flex-col items-center justify-center h-full text-center p-8">
-				<p className="text-slate-400 text-sm">{t("table.noMatch")}</p>
-			</div>
-		);
-	}
 
 	return (
 		<div className="overflow-auto h-full">
@@ -125,12 +85,17 @@ export function EntryTable({ app }: { app: App }) {
 									className="px-4 py-3 text-slate-700 whitespace-nowrap max-w-50"
 								>
 									{col === "password" ? (
-										<PasswordCell value={entry.password} />
+										<PasswordField value={entry.password} revealCopyOnHover />
 									) : col === "category" ? (
 										<CategoryCell
 											name={entry.category}
 											def={app.categoryOptions.find((c) => c.name === entry.category) ?? null}
 										/>
+									) : col === "loginName" && entry.loginName ? (
+										<span className="inline-flex items-center gap-1 max-w-full">
+											<span className="truncate text-sm">{entry.loginName}</span>
+											<CopyButton value={entry.loginName} size={12} revealOnHover />
+										</span>
 									) : (
 										<span className="truncate block text-sm">
 											{getCellValue(entry, col) || (

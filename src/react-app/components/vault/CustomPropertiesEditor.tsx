@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { useI18n } from "@/i18n";
 import { cn, DashedButton, GhostButton, IconButton } from "../ui";
+import { CopyButton } from "./CopyButton";
 
 // Two modes to avoid the "focus vanishes on first keystroke" bug:
 //   • Existing: key shown as a read-only label; value is an input; delete needs confirmation.
@@ -97,6 +98,7 @@ export function CustomPropertiesEditor({ properties, onChange }: CustomPropertie
                             placeholder={t("customProps.value")}
                             className={cn(inputCls, "flex-1")}
                         />
+                        <CopyButton value={val} className="shrink-0" />
                         <IconButton
                             variant="del"
                             onClick={() => setDeletingKey(key)}

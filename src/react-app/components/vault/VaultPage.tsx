@@ -4,11 +4,52 @@ import { useState } from "react";
 import type { VaultApp } from "@/hooks/useVaultApp";
 import { useI18n } from "@/i18n";
 import { CardButton } from "../ui";
+import { EntryCardList } from "./EntryCardList";
 import EntryModal from "./EntryModal";
 import { EntryTable } from "./EntryTable";
 import SettingsModal from "./SettingsModal";
 import { VaultHeader } from "./VaultHeader";
 import { VaultSidebar } from "./VaultSidebar";
+
+function EntryListArea({ app }: { app: VaultApp }) {
+	const { t } = useI18n();
+
+	if (app.vault.entries.length === 0) {
+		return (
+			<div className="flex flex-col items-center justify-center h-full text-center p-8">
+				<div className="w-16 h-16 bg-pw-100 rounded-2xl flex items-center justify-center mb-4">
+					<Plus className="w-8 h-8 text-pw-400" />
+				</div>
+				<p className="text-slate-500 font-medium mb-1">{t("table.empty.title")}</p>
+				<p className="text-sm text-slate-400">{t("table.empty.hint")}</p>
+			</div>
+		);
+	}
+
+	if (app.visibleEntries.length === 0) {
+		return (
+			<div className="flex flex-col items-center justify-center h-full text-center p-8">
+				<p className="text-slate-400 text-sm">{t("table.noMatch")}</p>
+			</div>
+		);
+	}
+
+	// Desktop is always a table; mobile uses the user's chosen view.
+	return (
+		<>
+			<div className="hidden md:block h-full">
+				<EntryTable app={app} />
+			</div>
+			<div className="md:hidden h-full">
+				{app.viewMode === "table" ? (
+					<EntryTable app={app} />
+				) : (
+					<EntryCardList app={app} />
+				)}
+			</div>
+		</>
+	);
+}
 
 export default function VaultPage({ app }: { app: VaultApp }) {
 	const { t } = useI18n();
@@ -29,8 +70,8 @@ export default function VaultPage({ app }: { app: VaultApp }) {
 					onClose={() => setSidebarOpen(false)}
 				/>
 
-				<main className="flex-1 relative overflow-hidden bg-white">
-					<EntryTable app={app} />
+				<main className="flex-1 relative overflow-hidden bg-pw-50/40 md:bg-white">
+					<EntryListArea app={app} />
 
 					{/* FAB — kept clear of the home indicator on notched phones */}
 					<div className="absolute fab-safe">

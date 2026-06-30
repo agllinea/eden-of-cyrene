@@ -150,6 +150,8 @@ export const en = {
 	"status.entryDeleted": "Entry deleted.",
 	"status.downloaded": "Vault file downloaded.",
 	"status.downloadFailed": "Download failed.",
+	"status.copied": "Copied.",
+	"status.copyFailed": "Couldn't copy.",
 
 	// ── Icon labels ──
 	"icon.Tag": "Tag",
@@ -194,8 +196,13 @@ export const en = {
 	"icon.ShoppingBag": "Shopping",
 	"icon.Zap": "Energy",
 
+	// ── View toggle ──
+	"view.card": "Card view",
+	"view.table": "Table view",
+
 	// ── Misc ──
 	"a11y.close": "Close",
+	"a11y.copy": "Copy",
 } as const;
 
 export type MessageKey = keyof typeof en;

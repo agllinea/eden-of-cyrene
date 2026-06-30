@@ -151,6 +151,8 @@ export const zh: Record<MessageKey, string> = {
 	"status.entryDeleted": "Entry 已删除。",
 	"status.downloaded": "已下载 Vault 文件。",
 	"status.downloadFailed": "下载失败。",
+	"status.copied": "已复制。",
+	"status.copyFailed": "复制失败。",
 
 	// ── Icon labels ──
 	"icon.Tag": "标签",
@@ -195,6 +197,11 @@ export const zh: Record<MessageKey, string> = {
 	"icon.ShoppingBag": "购物",
 	"icon.Zap": "能源",
 
+	// ── View toggle ──
+	"view.card": "卡片视图",
+	"view.table": "表格视图",
+
 	// ── Misc ──
 	"a11y.close": "关闭",
+	"a11y.copy": "复制",
 };

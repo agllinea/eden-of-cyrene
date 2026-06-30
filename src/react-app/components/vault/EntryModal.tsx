@@ -17,6 +17,7 @@ import {
 } from "../ui";
 import { AttachmentList } from "./AttachmentList";
 import { CategoryInput } from "./CategoryInput";
+import { CopyButton } from "./CopyButton";
 import { CustomPropertiesEditor } from "./CustomPropertiesEditor";
 
 interface EntryModalProps {
@@ -75,13 +76,19 @@ export default function EntryModal({
                         onChange={(e) => set("name", e.target.value)}
                         autoFocus={isNew}
                     />
-                    <SectionLabel>{t("entry.loginName")}</SectionLabel>
+                    <div className="flex items-center justify-between">
+                        <SectionLabel>{t("entry.loginName")}</SectionLabel>
+                        <CopyButton value={local.loginName} />
+                    </div>
                     <Input
                         placeholder={t("entry.loginPlaceholder")}
                         value={local.loginName}
                         onChange={(e) => set("loginName", e.target.value)}
                     />
-                    <SectionLabel>{t("entry.password")}</SectionLabel>
+                    <div className="flex items-center justify-between">
+                        <SectionLabel>{t("entry.password")}</SectionLabel>
+                        <CopyButton value={local.password} />
+                    </div>
                     <PasswordInput
                         placeholder="••••••••"
                         value={local.password}
@@ -98,7 +105,10 @@ export default function EntryModal({
                     />
                 </div>
 
-                <SectionLabel>{t("entry.notes")}</SectionLabel>
+                <div className="flex items-center justify-between">
+                    <SectionLabel>{t("entry.notes")}</SectionLabel>
+                    <CopyButton value={local.notes} />
+                </div>
                 <Textarea
                     placeholder={t("entry.notesPlaceholder")}
                     rows={3}

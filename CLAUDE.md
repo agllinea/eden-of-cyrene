@@ -118,6 +118,16 @@ context** (`SessionCrypto`) after unlock/create:
 - **Safe areas:** `index.html` sets `viewport-fit=cover`; edge-anchored UI (header,
   FAB, toaster, sidebar) uses the `pt-safe` / `pb-safe-4` / `fab-safe` utilities
   in `index.css` (no-ops on non-notched devices).
+- **Entry list views:** desktop is always the `EntryTable`; mobile defaults to
+  `EntryCardList` (name / login / password) and can toggle to the table via the
+  header button (persisted in `localStorage`, see `useVaultUI` `viewMode`). Empty
+  / no-match states live in `VaultPage` (`EntryListArea`), so the list components
+  assume a non-empty list. The category column/tag is hidden when filtered to a
+  single category (redundant).
+- **Copy:** every value is one-tap copyable via `CopyButton` (`useCopy` →
+  clipboard + toast). Quick-copy for password/login lives in the list; the detail
+  modal copies every field including custom properties. `PasswordField`
+  (mask + reveal + copy) is shared by the table and the card.
 - **PWA:** installable + offline via `public/manifest.webmanifest` and a
   network-first-navigation / cache-first-assets service worker (`public/sw.js`),
   registered in `main.tsx` **production-only**. Vault data is never cached by the

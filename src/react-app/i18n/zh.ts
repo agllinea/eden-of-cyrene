@@ -14,6 +14,8 @@ export const zh: Record<MessageKey, string> = {
 	"login.openFile.title": "上传 Vault 文件",
 	"login.openFile.text": "打开本地 .eden.json 文件",
 	"login.useCache.title": "使用浏览器缓存",
+	"login.useGoogleDrive.title": "使用 Google 账户",
+	"login.useGoogleDrive.text": "通过 Google Drive 打开或保存 Vault",
 	"login.newVault.title": "新建 Vault",
 	"login.newVault.text": "从零开始创建",
 
@@ -99,7 +101,7 @@ export const zh: Record<MessageKey, string> = {
 	"customProps.add": "添加属性",
 
 	// ── Sidebar ──
-	"sidebar.search": "搜索…",
+	"sidebar.search": "搜索",
 	"sidebar.all": "全部",
 	"sidebar.editIcon": "编辑图标",
 	"sidebar.newCategory": "新建类别",
@@ -124,14 +126,31 @@ export const zh: Record<MessageKey, string> = {
 	"settings.addQuestion": "添加安全问题",
 	"settings.save": "保存设置",
 	"settings.language": "界面语言",
+	"settings.cloudSync": "云同步",
+	"settings.cloudSyncNone": "不同步",
+	"settings.cloudSyncDrive": "Google Drive",
+	"settings.syncNow": "立即同步",
+	"settings.driveSyncing": "同步中…",
+	"settings.driveSynced": "已同步",
+	"settings.driveSyncError": "同步失败",
 	"lang.zh": "中文",
 	"lang.en": "English",
+
+	// ── Cache list ──
+	"cacheList.title": "浏览器缓存",
+	"cacheList.empty": "浏览器缓存中没有保存的 Vault",
+	"cacheList.savedAt": "保存于 {time}",
+
+	// ── Drive list ──
+	"driveList.title": "Google Drive",
+	"driveList.empty": "Google Drive 中没有找到 Vault 文件",
+	"driveList.modified": "修改于 {time}",
 
 	// ── Cache state labels ──
 	"cache.idle": "尚未储存",
 	"cache.none": "没有浏览器缓存",
 	"cache.unavailable": "无法读取浏览器缓存",
-	"cache.available": "可用缓存：{time}",
+	"cache.available": "浏览器缓存：{count} 个 Vault",
 	"cache.saving": "缓存中…",
 	"cache.saved": "缓存中，已储存",
 	"cache.error": "缓存中，储存失败",
@@ -144,6 +163,9 @@ export const zh: Record<MessageKey, string> = {
 	"status.cacheEmpty": "浏览器缓存为空。",
 	"status.cacheLoaded": "已读取浏览器缓存。",
 	"status.cacheReadFailed": "无法读取缓存。",
+	"status.driveLoaded": "已从 Google Drive 读取。",
+	"status.driveReadFailed": "无法从 Google Drive 读取。",
+	"status.driveSignInFailed": "Google 登录失败。",
 	"status.unlocked": "Vault 已解锁。",
 	"status.unlockFailed": "解锁失败，请检查输入。",
 	"status.vaultCreatedNoPassword": "已创建无密码 Vault。",

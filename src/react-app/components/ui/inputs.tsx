@@ -18,6 +18,10 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	password?: boolean;
 	/** Show a copy button that copies this field's own value. */
 	canCopy?: boolean;
+	/** Icon rendered inside the left edge of the field. */
+	leadingIcon?: React.ReactNode;
+	fullWidth?: boolean;
+	containerClassName?: string;
 }
 
 export function FloatingInput({
@@ -44,7 +48,7 @@ export function FloatingInput({
 				onBlur={(e) => { setFocused(false); onBlur?.(e); }}
 				placeholder=""
 				className={cn(
-					"w-full px-4 py-2.5 rounded-xl border bg-white",
+					"w-full px-4 py-2 rounded-xl border bg-white",
 					"text-base md:text-sm text-slate-700",
 					"focus:outline-none transition-all duration-200 disabled:opacity-50",
 					focused ? "border-pw-400 ring-2 ring-pw-100" : "border-pw-200",
@@ -94,7 +98,7 @@ export function FloatingPasswordInput({
 				onBlur={(e) => { setFocused(false); onBlur?.(e); }}
 				placeholder=""
 				className={cn(
-					"w-full px-4 py-2.5 pr-10 rounded-xl border bg-white",
+					"w-full px-4 py-2 pr-10 rounded-xl border bg-white",
 					"text-base md:text-sm text-slate-700",
 					"focus:outline-none transition-all duration-200 disabled:opacity-50",
 					focused ? "border-pw-400 ring-2 ring-pw-100" : "border-pw-200",
@@ -138,10 +142,13 @@ export function Input({
 	className,
 	password,
 	canCopy,
+	leadingIcon,
 	type,
 	value,
 	onFocus,
 	onBlur,
+	containerClassName,
+	fullWidth,
 	...props
 }: InputProps) {
 	const [show, setShow] = useState(false);
@@ -164,13 +171,18 @@ export function Input({
 	const count = (copyButton ? 1 : 0) + (eyeButton ? 1 : 0);
 
 	return (
-		<div className="w-full">
+		<div className={cn(containerClassName, fullWidth && "w-full")}>
 			{label && (
 				<label className="block text-xs font-medium text-slate-500 mb-1.5">
 					{label}
 				</label>
 			)}
 			<div className="relative">
+				{leadingIcon && (
+					<span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+						{leadingIcon}
+					</span>
+				)}
 				<input
 					{...props}
 					value={value}
@@ -178,10 +190,11 @@ export function Input({
 					onFocus={(e) => { setFocused(true); onFocus?.(e); }}
 					onBlur={(e) => { setFocused(false); onBlur?.(e); }}
 					className={cn(
-						"w-full px-4 py-2.5 rounded-xl border border-pw-200 bg-white",
+						"w-full px-4 py-2 rounded-xl border border-pw-200 bg-white",
 						"text-base md:text-sm text-slate-700 placeholder:text-slate-300",
 						"focus:outline-none focus:border-pw-400 focus:ring-2 focus:ring-pw-100",
 						"transition-all duration-200 disabled:opacity-50",
+						!!leadingIcon && "pl-9",
 						count === 1 && "pr-12",
 						count >= 2 && "pr-20",
 						className,
@@ -240,7 +253,7 @@ export function Textarea({
 					onFocus={(e) => { setFocused(true); onFocus?.(e); }}
 					onBlur={(e) => { setFocused(false); onBlur?.(e); }}
 					className={cn(
-						"w-full px-4 py-2.5 rounded-xl border border-pw-200 bg-white resize-none",
+						"w-full px-4 py-2 rounded-xl border border-pw-200 bg-white resize-none",
 						"text-base md:text-sm text-slate-700 placeholder:text-slate-300",
 						"focus:outline-none focus:border-pw-400 focus:ring-2 focus:ring-pw-100",
 						"transition-all duration-200",

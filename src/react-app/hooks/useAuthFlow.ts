@@ -16,18 +16,25 @@ import {
 	unlockWithAnswers,
 	unlockWithPassword,
 } from "@/services/cryptoVault";
-import { hydrateAttachments, readUploadedVault } from "@/services/storage";
+import {
+	hydrateAttachments,
+	loadCachedVault,
+	readUploadedVault,
+} from "@/services/storage";
+import {
+	linkVaultToDrive,
+	loadDriveVault,
+	signIn as googleSignIn,
+} from "@/services/googleDrive";
 
 import type { EncryptionController } from "./useEncryption";
 import type { AppPhase, UnlockMode } from "./phase";
 import type { VaultDocument } from "./useVaultDocument";
-import type { VaultPersistence } from "./useVaultPersistence";
 
 interface AuthFlowArgs {
 	setPhase: (phase: AppPhase) => void;
 	document: VaultDocument;
 	encryption: EncryptionController;
-	persistence: VaultPersistence;
 	setStatus: (status: StatusMessage | null) => void;
 }
 
@@ -36,11 +43,11 @@ export function useAuthFlow({
 	setPhase,
 	document,
 	encryption,
-	persistence,
 	setStatus,
 }: AuthFlowArgs) {
 	const [lockedVault, setLockedVault] = useState<EncryptedVault | null>(null);
-	const [pendingFromCache, setPendingFromCache] = useState(false);
+	const [pendingCacheVaultId, setPendingCacheVaultId] = useState<string | null>(null);
+	const [pendingDriveFileId, setPendingDriveFileId] = useState<string | null>(null);
 	const [unlockMode, setUnlockMode] = useState<UnlockMode>("password");
 	const [unlockPassword, setUnlockPassword] = useState("");
 	const [unlockAnswers, setUnlockAnswers] = useState<Record<string, string>>({});
@@ -59,7 +66,8 @@ export function useAuthFlow({
 
 	const openVaultFileObject = async (
 		vaultFile: VaultFile,
-		fromCache: boolean,
+		cacheVaultId: string | null, // for attachment hydration; null = not from cache
+		driveFileId: string | null,  // for Drive link; null = not from Drive
 		successStatus: StatusMessage,
 	) => {
 		if (isEncryptedVault(vaultFile)) {
@@ -67,7 +75,8 @@ export function useAuthFlow({
 				(slot) => slot.type === "password",
 			);
 			setLockedVault(vaultFile);
-			setPendingFromCache(fromCache);
+			setPendingCacheVaultId(cacheVaultId);
+			setPendingDriveFileId(driveFileId);
 			setUnlockMode(hasPassword ? "password" : "questions");
 			setPhase("unlock");
 			return;
@@ -75,9 +84,11 @@ export function useAuthFlow({
 
 		encryption.usePlain();
 		let vault = touchVault(vaultFile);
-		if (fromCache) {
-			// Plaintext attachment blobs ignore the session argument.
-			vault = await hydrateAttachments(vault, noEncryptionSession());
+		if (cacheVaultId !== null) {
+			vault = await hydrateAttachments(vault, noEncryptionSession(), cacheVaultId);
+		}
+		if (driveFileId !== null) {
+			linkVaultToDrive(vault.createdAt, driveFileId);
 		}
 		document.loadVault(vault);
 		setPhase("ready");
@@ -88,22 +99,42 @@ export function useAuthFlow({
 		try {
 			const text = await file.text();
 			const vaultFile = await readUploadedVault(new File([text], file.name));
-			await openVaultFileObject(vaultFile, false, msg("success", "status.fileLoaded"));
+			await openVaultFileObject(vaultFile, null, null, msg("success", "status.fileLoaded"));
 		} catch {
 			setStatus(msg("error", "status.openFailed"));
 		}
 	};
 
-	const openCachedVault = async () => {
+	const openCacheList = () => setPhase("cacheList");
+
+	const openCachedVaultById = async (vaultId: string) => {
 		try {
-			const vaultFile = await persistence.loadCached();
+			const vaultFile = await loadCachedVault(vaultId);
 			if (!vaultFile) {
 				setStatus(msg("error", "status.cacheEmpty"));
 				return;
 			}
-			await openVaultFileObject(vaultFile, true, msg("success", "status.cacheLoaded"));
+			await openVaultFileObject(vaultFile, vaultId, null, msg("success", "status.cacheLoaded"));
 		} catch {
 			setStatus(msg("error", "status.cacheReadFailed"));
+		}
+	};
+
+	const openDriveList = async () => {
+		try {
+			await googleSignIn();
+			setPhase("driveList");
+		} catch {
+			setStatus(msg("error", "status.driveSignInFailed"));
+		}
+	};
+
+	const openDriveVaultById = async (fileId: string) => {
+		try {
+			const vaultFile = await loadDriveVault(fileId);
+			await openVaultFileObject(vaultFile, null, fileId, msg("success", "status.driveLoaded"));
+		} catch {
+			setStatus(msg("error", "status.driveReadFailed"));
 		}
 	};
 
@@ -123,8 +154,6 @@ export function useAuthFlow({
 								: [],
 						);
 
-			// The session keeps the file encrypted on save regardless of `intent`,
-			// which is only the editing view shown in Settings.
 			const intent: EncryptionSettings =
 				unlockMode === "password" && unlockPassword
 					? { mode: "encrypted", password: unlockPassword, securityQuestions: [] }
@@ -132,13 +161,17 @@ export function useAuthFlow({
 			const session = encryption.adoptUnlocked(lockedVault, vaultKey, intent);
 
 			let nextVault = touchVault(vault);
-			if (pendingFromCache) {
-				nextVault = await hydrateAttachments(nextVault, session);
+			if (pendingCacheVaultId !== null) {
+				nextVault = await hydrateAttachments(nextVault, session, pendingCacheVaultId);
+			}
+			if (pendingDriveFileId !== null) {
+				linkVaultToDrive(nextVault.createdAt, pendingDriveFileId);
 			}
 			document.loadVault(nextVault);
 
 			setLockedVault(null);
-			setPendingFromCache(false);
+			setPendingCacheVaultId(null);
+			setPendingDriveFileId(null);
 			setUnlockPassword("");
 			setUnlockAnswers({});
 			setPhase("ready");
@@ -214,12 +247,20 @@ export function useAuthFlow({
 		);
 	};
 
+	const goBackFromCacheList = () => setPhase("login");
+	const goBackFromDriveList = () => setPhase("login");
+
 	const goBackFromUnlock = () => {
+		const origin =
+			pendingCacheVaultId !== null ? "cacheList"
+			: pendingDriveFileId !== null ? "driveList"
+			: "login";
 		setLockedVault(null);
-		setPendingFromCache(false);
+		setPendingCacheVaultId(null);
+		setPendingDriveFileId(null);
 		setUnlockPassword("");
 		setUnlockAnswers({});
-		setPhase("login");
+		setPhase(origin);
 	};
 
 	const goBackFromSetupPassword = () => {
@@ -247,13 +288,18 @@ export function useAuthFlow({
 		setupQuestions,
 		setSetupQuestions,
 		openVaultFile,
-		openCachedVault,
+		openCacheList,
+		openCachedVaultById,
+		openDriveList,
+		openDriveVaultById,
 		unlockVault,
 		startNewVault,
 		createVaultWithoutPassword,
 		continueWithPassword,
 		finishSecurityQuestions,
 		updateSetupQuestion,
+		goBackFromCacheList,
+		goBackFromDriveList,
 		goBackFromUnlock,
 		goBackFromSetupPassword,
 		goBackFromSetupQuestions,

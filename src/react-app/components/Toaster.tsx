@@ -6,21 +6,18 @@ import {
 	useState,
 } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { CheckCircle, AlertCircle, Info, X } from "lucide-react";
+import { X } from "lucide-react";
 import { IconButton } from "./button";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type ToastType = "info" | "success" | "error";
-
 interface ToastItem {
 	id: string;
 	message: string;
-	type: ToastType;
 }
 
 interface ToastContextValue {
-	addToast: (message: string, type?: ToastType) => void;
+	addToast: (message: string) => void;
 }
 
 // ── Context ───────────────────────────────────────────────────────────────────
@@ -47,11 +44,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	const addToast = useCallback(
-		(message: string, type: ToastType = "info") => {
+		(message: string) => {
 			const id = crypto.randomUUID();
-			// Cap at 4 visible toasts — drop the oldest if we exceed that
 			setToasts((prev) => {
-				const next = [...prev, { id, message, type }];
+				const next = [...prev, { id, message }];
 				if (next.length > 4) {
 					const removed = next.shift()!;
 					const oldTimer = timers.current.get(removed.id);
@@ -62,7 +58,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 				}
 				return next;
 			});
-			const timer = setTimeout(() => dismiss(id), 4000);
+			const timer = setTimeout(() => dismiss(id), 5000);
 			timers.current.set(id, timer);
 		},
 		[dismiss],
@@ -76,20 +72,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 	);
 }
 
-// ── Visual icons ──────────────────────────────────────────────────────────────
-
-const icons: Record<ToastType, React.ReactNode> = {
-	success: <CheckCircle size={16} className="text-pw-500 flex-shrink-0" />,
-	error:   <AlertCircle size={16} className="text-red-400 flex-shrink-0" />,
-	info:    <Info        size={16} className="text-ac-400 flex-shrink-0" />,
-};
-
-const borderCls: Record<ToastType, string> = {
-	success: "border-l-pw-300",
-	error:   "border-l-red-300",
-	info:    "border-l-ac-300",
-};
-
 // ── Toaster UI ────────────────────────────────────────────────────────────────
 
 function ToasterUI({
@@ -101,31 +83,29 @@ function ToasterUI({
 }) {
 	return (
 		<div
-			aria-live="polite"
+			aria-live="assertive"
 			aria-atomic="false"
-			className="fixed top-4 inset-x-0 z-[200] flex flex-col items-center gap-2 pointer-events-none px-4 pt-safe"
+			className="fixed bottom-6 pb-safe inset-x-0 z-[200] flex flex-col items-center gap-2 pointer-events-none px-4"
 		>
 			<AnimatePresence initial={false}>
 				{toasts.map((toast) => (
 					<motion.div
 						key={toast.id}
 						layout
-						initial={{ opacity: 0, y: -16, scale: 0.95 }}
+						initial={{ opacity: 0, y: 12, scale: 0.96 }}
 						animate={{ opacity: 1, y: 0, scale: 1 }}
-						exit={{ opacity: 0, y: -8, scale: 0.95 }}
-						transition={{ duration: 0.22, ease: "easeOut" }}
-						className={`pointer-events-auto flex items-center gap-3 px-4 py-3 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg shadow-pw-200/30 border border-l-4 border-pw-100 ${borderCls[toast.type]} max-w-sm w-full`}
+						exit={{ opacity: 0, y: 6, scale: 0.96 }}
+						transition={{ duration: 0.2, ease: "easeOut" }}
+						className="pointer-events-auto flex items-center gap-3 px-4 py-3 bg-slate-900/80 backdrop-blur-md rounded-2xl shadow-xl max-w-sm w-full"
 					>
-						{icons[toast.type]}
-
-						<span className="flex-1 text-sm text-slate-700 leading-snug">
+						<span className="flex-1 text-sm text-white leading-snug">
 							{toast.message}
 						</span>
 
 						<IconButton
 							variant="x"
 							onClick={() => onDismiss(toast.id)}
-							className="shrink-0 w-5 h-5 flex items-center justify-center rounded"
+							className="shrink-0 w-5 h-5 flex items-center justify-center rounded text-slate-400 hover:text-white"
 							aria-label="Close"
 						>
 							<X size={13} />

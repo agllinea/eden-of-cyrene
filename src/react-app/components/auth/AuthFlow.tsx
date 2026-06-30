@@ -1,6 +1,8 @@
 import { AnimatePresence } from "motion/react";
 
 import type { VaultApp } from "../../hooks/useVaultApp";
+import { CacheListCard } from "./CacheListCard";
+import { DriveListCard } from "./DriveListCard";
 import { LoginCard } from "./LoginCard";
 import { SetupPasswordCard } from "./SetupPasswordCard";
 import { SetupQuestionsCard } from "./SetupQuestionsCard";
@@ -11,6 +13,8 @@ export default function AuthFlow({ app }: { app: VaultApp }) {
 		<div className="min-h-dvh bg-linear-to-br from-pw-200 via-pw-50 to-ac-100 flex items-center justify-center p-4">
 			<AnimatePresence mode="wait">
 				{app.phase === "login" && <LoginCard key="login" app={app} />}
+				{app.phase === "cacheList" && <CacheListCard key="cacheList" app={app} />}
+			{app.phase === "driveList" && <DriveListCard key="driveList" app={app} />}
 				{app.phase === "unlock" && <UnlockCard key="unlock" app={app} />}
 				{app.phase === "setupPassword" && (
 					<SetupPasswordCard key="setupPassword" app={app} />

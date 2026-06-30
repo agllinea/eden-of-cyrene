@@ -13,9 +13,8 @@ function AppContent() {
 	// Status is a typed code, so the toast tone comes from `tone` — never from
 	// pattern-matching display text.
 	useEffect(() => {
-		if (!app.status) return;
-		const tone = app.status.tone === "error" ? "error" : "success";
-		addToast(t(app.status.key, app.status.params), tone);
+		if (!app.status || app.status.tone !== "error") return;
+		addToast(t(app.status.key, app.status.params));
 	}, [app.status]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	if (app.phase !== "ready") return <AuthFlow app={app} />;

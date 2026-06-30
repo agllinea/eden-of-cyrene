@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { CategoryDef } from "@/domain/types";
 import type { VaultApp } from "@/hooks/useVaultApp";
 import { useI18n } from "@/i18n";
-import { Button, cn } from "../ui";
+import { Button, cn, Input } from "../ui";
 import { CategoryIcon } from "./CategoryIcon";
 import CategoryModal from "./CategoryModal";
 
@@ -38,33 +38,18 @@ function SidebarContent({ app, onNavigate }: { app: App; onNavigate?: () => void
 
 	return (
 		<>
-			{/* Search — same gradient + height as the entry table thead */}
-			<div className={cn(
-				"px-3 shrink-0 flex items-center",
-				// "bg-linear-to-br from-ac-100 to-pw-100 border-b border-pw-100",
-				"pt-safe-4 pb-3 md:pt-0 md:pb-0 md:h-14",
-			)}>
-				<div className="relative w-full">
-					<Search
-						size={14}
-						className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-					/>
-					<input
-						value={app.searchText}
-						onChange={(e) => app.setSearchText(e.target.value)}
-						placeholder={t("sidebar.search")}
-						className={cn(
-							"w-full pl-8 pr-3 py-1.5 rounded-lg bg-white border border-pw-200",
-							"text-base md:text-sm text-slate-700 placeholder:text-slate-300",
-							"focus:outline-none focus:border-pw-300 focus:ring-2 focus:ring-pw-100",
-							"transition-all duration-200",
-						)}
-					/>
-				</div>
+			{/* Search — mobile only; desktop search lives in VaultHeader */}
+			<div className="md:hidden px-3 pt-safe-4 pb-3 shrink-0">
+				<Input
+					leadingIcon={<Search size={14} />}
+					value={app.searchText}
+					onChange={(e) => app.setSearchText(e.target.value)}
+					placeholder={t("sidebar.search")}
+				/>
 			</div>
 
 			{/* Category list */}
-			<div className="flex-1 overflow-y-auto px-3 pb-safe-4 space-y-0.5">
+			<div className="flex-1 overflow-y-auto px-3 pt-3 pb-safe-4 space-y-0.5">
 				{/* "All" row */}
 				<button
 					onClick={() => selectCategory(null)}

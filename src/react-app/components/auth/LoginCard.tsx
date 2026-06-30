@@ -4,6 +4,7 @@ import { useRef } from "react";
 
 import { useI18n } from "@/i18n";
 import { cacheStateLabel } from "@/i18n/format";
+import { GoogleDriveIcon } from "../GoogleDriveIcon";
 import { OptionCard } from "../ui";
 import { App, AppLogo, Card, cardMotion } from "./shared";
 
@@ -27,10 +28,18 @@ export function LoginCard({ app }: { app: App }) {
 
 					<OptionCard
 						variant="soft"
-						onClick={() => void app.openCachedVault()}
+						onClick={app.openCacheList}
 						title={t("login.useCache.title")}
 						text={cacheStateLabel(app.cacheState, t)}
 						icon={<Database size={20} />}
+					/>
+
+					<OptionCard
+						variant="soft"
+						onClick={() => void app.openDriveList()}
+						title={t("login.useGoogleDrive.title")}
+						text={t("login.useGoogleDrive.text")}
+						icon={<GoogleDriveIcon size={20} />}
 					/>
 
 					<OptionCard

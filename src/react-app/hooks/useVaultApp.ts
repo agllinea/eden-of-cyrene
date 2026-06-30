@@ -2,6 +2,13 @@ import { useState } from "react";
 
 import { msg } from "@/domain/status";
 import type { Entry, EncryptionSettings } from "@/domain/types";
+import {
+	getDriveFileId,
+	saveToDrive,
+	signIn as googleSignIn,
+	signOut as googleSignOut,
+	unlinkVaultFromDrive,
+} from "@/services/googleDrive";
 
 import type { AppPhase } from "./phase";
 import { useAuthFlow } from "./useAuthFlow";
@@ -33,7 +40,6 @@ export function useVaultApp() {
 		setPhase,
 		document,
 		encryption,
-		persistence,
 		setStatus,
 	});
 
@@ -65,6 +71,34 @@ export function useVaultApp() {
 		} catch {
 			setStatus(msg("error", "status.passwordRequired"));
 		}
+	};
+
+	// ── Google Drive actions ──
+
+	/** Sign in and link the current vault to Google Drive (create file on first call). */
+	const connectGoogleDrive = async () => {
+		try {
+			await googleSignIn();
+			// Create the Drive file if this vault isn't linked yet.
+			if (!getDriveFileId(document.vault.createdAt)) {
+				await saveToDrive(document.vault, encryption.session);
+			}
+			persistence.refreshDriveLink(document.vault.createdAt);
+		} catch {
+			setStatus(msg("error", "status.driveSignInFailed"));
+		}
+	};
+
+	/** Remove the Drive link and sign out (Drive file is kept intact). */
+	const disconnectGoogleDrive = () => {
+		unlinkVaultFromDrive(document.vault.createdAt);
+		googleSignOut();
+		persistence.refreshDriveLink(document.vault.createdAt);
+	};
+
+	/** Force an immediate Drive sync (shows status on the header button). */
+	const syncNow = async () => {
+		await persistence.forceDriveSync();
 	};
 
 	return {
@@ -107,6 +141,11 @@ export function useVaultApp() {
 		cacheState: persistence.cacheState,
 		cacheSaving: persistence.cacheState.status === "saving",
 		downloadVault,
+		driveLinked: persistence.driveLinked,
+		driveState: persistence.driveState,
+		connectGoogleDrive,
+		disconnectGoogleDrive,
+		syncNow,
 
 		// auth flow
 		...auth,

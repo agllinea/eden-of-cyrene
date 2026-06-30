@@ -24,7 +24,7 @@ export type CacheState =
 	| { status: "idle" }
 	| { status: "none" }
 	| { status: "unavailable" }
-	| { status: "available"; savedAt: string }
+	| { status: "available"; count: number }
 	| { status: "saving" }
 	| { status: "saved" }
 	| { status: "error" };

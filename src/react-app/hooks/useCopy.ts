@@ -13,10 +13,10 @@ export function useCopy() {
 			if (!value) return false;
 			try {
 				await navigator.clipboard.writeText(value);
-				addToast(t("status.copied"), "success");
+				addToast(t("status.copied"));
 				return true;
 			} catch {
-				addToast(t("status.copyFailed"), "error");
+				addToast(t("status.copyFailed"));
 				return false;
 			}
 		},

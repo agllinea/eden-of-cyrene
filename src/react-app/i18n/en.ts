@@ -13,6 +13,8 @@ export const en = {
 	"login.openFile.title": "Open a Vault file",
 	"login.openFile.text": "Open a local .eden.json file",
 	"login.useCache.title": "Use browser cache",
+	"login.useGoogleDrive.title": "Continue with Google",
+	"login.useGoogleDrive.text": "Open or save vaults in Google Drive",
 	"login.newVault.title": "New Vault",
 	"login.newVault.text": "Start from scratch",
 
@@ -98,7 +100,7 @@ export const en = {
 	"customProps.add": "Add property",
 
 	// ── Sidebar ──
-	"sidebar.search": "Search…",
+	"sidebar.search": "Search",
 	"sidebar.all": "All",
 	"sidebar.editIcon": "Edit icon",
 	"sidebar.newCategory": "New category",
@@ -123,14 +125,31 @@ export const en = {
 	"settings.addQuestion": "Add security question",
 	"settings.save": "Save settings",
 	"settings.language": "Language",
+	"settings.cloudSync": "Cloud sync",
+	"settings.cloudSyncNone": "No sync",
+	"settings.cloudSyncDrive": "Google Drive",
+	"settings.syncNow": "Sync now",
+	"settings.driveSyncing": "Syncing…",
+	"settings.driveSynced": "Synced",
+	"settings.driveSyncError": "Sync failed",
 	"lang.zh": "中文",
 	"lang.en": "English",
+
+	// ── Cache list ──
+	"cacheList.title": "Cached Vaults",
+	"cacheList.empty": "No vaults saved in browser cache",
+	"cacheList.savedAt": "Saved {time}",
+
+	// ── Drive list ──
+	"driveList.title": "Google Drive",
+	"driveList.empty": "No vault files found in Google Drive",
+	"driveList.modified": "Modified {time}",
 
 	// ── Cache state labels ──
 	"cache.idle": "Not saved yet",
 	"cache.none": "No browser cache",
 	"cache.unavailable": "Cannot read browser cache",
-	"cache.available": "Cached: {time}",
+	"cache.available": "Browser cache: {count} vault(s)",
 	"cache.saving": "Saving…",
 	"cache.saved": "Saved to cache",
 	"cache.error": "Cache save failed",
@@ -143,6 +162,9 @@ export const en = {
 	"status.cacheEmpty": "Browser cache is empty.",
 	"status.cacheLoaded": "Loaded from browser cache.",
 	"status.cacheReadFailed": "Couldn't read the cache.",
+	"status.driveLoaded": "Loaded from Google Drive.",
+	"status.driveReadFailed": "Couldn't load from Google Drive.",
+	"status.driveSignInFailed": "Google sign-in failed.",
 	"status.unlocked": "Vault unlocked.",
 	"status.unlockFailed": "Unlock failed. Check your input.",
 	"status.vaultCreatedNoPassword": "Created a vault with no password.",

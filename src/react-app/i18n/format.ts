@@ -6,9 +6,7 @@ import type { TFunction } from ".";
 export function cacheStateLabel(state: CacheState, t: TFunction): string {
 	switch (state.status) {
 		case "available":
-			return t("cache.available", {
-				time: new Date(state.savedAt).toLocaleString(),
-			});
+			return t("cache.available", { count: state.count });
 		case "saving":
 			return t("cache.saving");
 		case "saved":

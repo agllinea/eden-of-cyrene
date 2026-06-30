@@ -46,7 +46,7 @@ export default function VaultPage({ app }: { app: VaultApp }) {
 
 	return (
 		<div className="flex flex-col h-dvh overflow-hidden">
-			<VaultHeader app={app} onMenuClick={() => setSidebarOpen(true)} />
+			<VaultHeader app={app} onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
 			<div className="flex flex-1 overflow-hidden">
 				<VaultSidebar
@@ -91,10 +91,15 @@ export default function VaultPage({ app }: { app: VaultApp }) {
 					cacheEnabled={app.cacheEnabled}
 					cacheSaving={app.cacheSaving}
 					cacheState={app.cacheState}
+					driveLinked={app.driveLinked}
+					driveState={app.driveState}
 					onSetCacheEnabled={app.setCacheEnabled}
 					onUpdateVaultName={app.updateVaultName}
 					onApplySettings={app.applySettings}
 					onDownload={app.downloadVault}
+					onConnectDrive={app.connectGoogleDrive}
+					onDisconnectDrive={app.disconnectGoogleDrive}
+					onSyncNow={app.syncNow}
 					onClose={() => app.setSettingsOpen(false)}
 				/>
 			)}

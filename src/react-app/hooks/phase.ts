@@ -1,5 +1,7 @@
 export type AppPhase =
 	| "login"
+	| "cacheList"
+	| "driveList"
 	| "unlock"
 	| "setupPassword"
 	| "setupQuestions"

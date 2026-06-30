@@ -47,7 +47,7 @@ export function OptionCard({
 			type={type}
 			{...props}
 			className={cn(
-				"w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-left transition-all duration-200 cursor-pointer select-none",
+				"w-full flex items-center gap-3 pl-2.5 pr-3 py-2 rounded-2xl text-left transition-all duration-200 cursor-pointer select-none",
 				"disabled:opacity-50 disabled:cursor-not-allowed",
 				c.bg,
 				className,
@@ -56,7 +56,7 @@ export function OptionCard({
 			{icon && (
 				<div
 					className={cn(
-						"w-11 h-11 rounded-xl flex items-center justify-center shrink-0",
+						"w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
 						c.iconBg,
 					)}
 				>
@@ -66,7 +66,7 @@ export function OptionCard({
 			<div>
 				<div className={cn("font-semibold text-sm", c.title)}>{title}</div>
 				{text !== undefined && (
-					<div className={cn("text-xs mt-0.5", c.sub)}>{text}</div>
+					<div className={cn("text-xs mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-[45vw]", c.sub)}>{text}</div>
 				)}
 			</div>
 		</button>

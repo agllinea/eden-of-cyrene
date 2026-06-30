@@ -1,4 +1,4 @@
-import { Check, Download, Loader2, Plus, Shield, ShieldOff, X } from "lucide-react";
+import { Check, Cloud, CloudCheck, CloudOff, CloudUpload, Download, Loader2, Plus, Shield, ShieldOff, X } from "lucide-react";
 import { useState } from "react";
 
 import type { CacheState } from "@/domain/status";
@@ -6,6 +6,8 @@ import type { EncryptionSettings, SecurityQuestion } from "@/domain/types";
 import { createBlankSecurityQuestion } from "@/domain/types";
 import { LOCALES, useI18n } from "@/i18n";
 import { cacheStateLabel } from "@/i18n/format";
+import { GoogleDriveIcon } from "../GoogleDriveIcon";
+import type { DriveState } from "@/services/googleDrive";
 import {
 	Button,
 	Input,
@@ -26,10 +28,15 @@ interface SettingsModalProps {
 	cacheEnabled: boolean;
 	cacheSaving: boolean;
 	cacheState: CacheState;
+	driveLinked: boolean;
+	driveState: DriveState;
 	onSetCacheEnabled: (enabled: boolean) => void;
 	onUpdateVaultName: (name: string) => void;
 	onApplySettings: (s: EncryptionSettings) => void | Promise<void>;
 	onDownload: () => Promise<void>;
+	onConnectDrive: () => void | Promise<void>;
+	onDisconnectDrive: () => void;
+	onSyncNow: () => void | Promise<void>;
 	onClose: () => void;
 }
 
@@ -39,10 +46,15 @@ export default function SettingsModal({
 	cacheEnabled,
 	cacheSaving,
 	cacheState,
+	driveLinked,
+	driveState,
 	onSetCacheEnabled,
 	onUpdateVaultName,
 	onApplySettings,
 	onDownload,
+	onConnectDrive,
+	onDisconnectDrive,
+	onSyncNow,
 	onClose,
 }: SettingsModalProps) {
 	const { t, locale, setLocale } = useI18n();
@@ -178,6 +190,52 @@ export default function SettingsModal({
 						<Download size={15} />
 						{downloading ? t("settings.downloading") : t("settings.download")}
 					</Button>
+				</div>
+
+				{/* Cloud sync */}
+				<div>
+					<SectionLabel>{t("settings.cloudSync")}</SectionLabel>
+					<div className="flex gap-2 mb-3">
+						<Button
+							variant={!driveLinked ? "primary" : "secondary"}
+							onClick={onDisconnectDrive}
+							fullWidth
+						>
+							{t("settings.cloudSyncNone")}
+						</Button>
+						<Button
+							variant={driveLinked ? "primary" : "secondary"}
+							onClick={() => void onConnectDrive()}
+							fullWidth
+						>
+							<GoogleDriveIcon size={14} />
+							{t("settings.cloudSyncDrive")}
+						</Button>
+					</div>
+					{driveLinked && (
+						<div className="flex items-center justify-between pr-1 py-2">
+							<div className="flex items-center gap-2 text-sm text-slate-500">
+								{driveState === "syncing" && <Loader2 size={14} className="animate-spin" />}
+								{driveState === "synced" && <CloudCheck size={14} className="text-green-500" />}
+								{driveState === "error" && <CloudOff size={14} className="text-red-400" />}
+								{driveState === "idle" && <Cloud size={14} className="text-slate-400" />}
+								<span>
+									{driveState === "syncing" && t("settings.driveSyncing")}
+									{driveState === "synced" && t("settings.driveSynced")}
+									{driveState === "error" && t("settings.driveSyncError")}
+									{driveState === "idle" && t("settings.cloudSyncDrive")}
+								</span>
+							</div>
+							<Button
+								variant="secondary"
+								onClick={() => void onSyncNow()}
+								disabled={driveState === "syncing"}
+							>
+								<CloudUpload size={14} />
+								{t("settings.syncNow")}
+							</Button>
+						</div>
+					)}
 				</div>
 
 				{/* Encryption */}

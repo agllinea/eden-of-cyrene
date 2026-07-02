@@ -7,6 +7,9 @@ const SCOPE = "https://www.googleapis.com/auth/drive.file";
 const DRIVE_API = "https://www.googleapis.com/drive/v3";
 const UPLOAD_API = "https://www.googleapis.com/upload/drive/v3";
 const MAPPING_KEY = "eden-of-cyrene:drive-file-ids";
+const ACCOUNT_KEY = "eden-of-cyrene:account-email";
+const SESSION_TOKEN_KEY = "eden-of-cyrene:access-token";
+const SESSION_EXPIRY_KEY = "eden-of-cyrene:token-expiry";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -50,6 +53,57 @@ export function unlinkVaultFromDrive(vaultCreatedAt: string): void {
 	persistMapping();
 }
 
+// ── Account email cache (localStorage — survives browser close) ───────────────
+
+function getCachedEmail(): string | null {
+	try { return localStorage.getItem(ACCOUNT_KEY); } catch { return null; }
+}
+function setCachedEmail(email: string) {
+	try { localStorage.setItem(ACCOUNT_KEY, email); } catch {}
+}
+function clearCachedEmail() {
+	try { localStorage.removeItem(ACCOUNT_KEY); } catch {}
+}
+
+export function getCachedAccountEmail(): string | null { return getCachedEmail(); }
+
+async function fetchAndCacheEmail(accessToken: string): Promise<void> {
+	try {
+		const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+			headers: { Authorization: `Bearer ${accessToken}` },
+		});
+		if (res.ok) {
+			const data = await res.json() as { email?: string };
+			if (data.email) setCachedEmail(data.email);
+		}
+	} catch {}
+}
+
+// ── Access token cache (sessionStorage — survives page refresh, not tab close) ─
+
+function saveSessionToken(value: string, expiresAt: number) {
+	try {
+		sessionStorage.setItem(SESSION_TOKEN_KEY, value);
+		sessionStorage.setItem(SESSION_EXPIRY_KEY, String(expiresAt));
+	} catch {}
+}
+
+function loadSessionToken(): { value: string; expiresAt: number } | null {
+	try {
+		const value = sessionStorage.getItem(SESSION_TOKEN_KEY);
+		const expiresAt = Number(sessionStorage.getItem(SESSION_EXPIRY_KEY));
+		if (value && expiresAt && Date.now() < expiresAt) return { value, expiresAt };
+	} catch {}
+	return null;
+}
+
+function clearSessionToken() {
+	try {
+		sessionStorage.removeItem(SESSION_TOKEN_KEY);
+		sessionStorage.removeItem(SESSION_EXPIRY_KEY);
+	} catch {}
+}
+
 // ── Google Identity Services (GIS) ────────────────────────────────────────────
 
 // Minimal type surface for the GIS token client.
@@ -70,7 +124,7 @@ declare const google: {
 };
 
 let tokenClient: GsiTokenClient | null = null;
-let activeToken: { value: string; expiresAt: number } | null = null;
+let activeToken: { value: string; expiresAt: number } | null = loadSessionToken();
 let pendingAuth: { resolve: (t: string) => void; reject: (e: Error) => void } | null = null;
 let gsiReady = false;
 
@@ -101,7 +155,9 @@ function buildTokenClient(): GsiTokenClient {
 					value: resp.access_token,
 					expiresAt: Date.now() + (resp.expires_in - 60) * 1_000,
 				};
+				saveSessionToken(activeToken.value, activeToken.expiresAt);
 				pendingAuth?.resolve(resp.access_token);
+				void fetchAndCacheEmail(resp.access_token);
 			}
 			pendingAuth = null;
 		},
@@ -119,16 +175,30 @@ export function isSignedIn(): boolean {
 export function signOut(): void {
 	activeToken = null;
 	tokenClient = null;
+	clearSessionToken();
 }
 
-/** Triggers Google OAuth popup. Resolves with the access token. */
-export async function signIn(): Promise<string> {
-	if (activeToken && Date.now() < activeToken.expiresAt) return activeToken.value;
+/**
+ * Triggers Google OAuth. On first sign-in (no cached email) shows the account
+ * picker. On subsequent calls uses the cached email as a hint so the browser
+ * can auto-select the right account. Pass `forceSelectAccount = true` to always
+ * show the picker (used by the "switch account" flow).
+ */
+export async function signIn(forceSelectAccount = false): Promise<string> {
+	if (!forceSelectAccount && activeToken && Date.now() < activeToken.expiresAt) return activeToken.value;
 	await loadGsi();
 	return new Promise<string>((resolve, reject) => {
 		pendingAuth = { resolve, reject };
 		tokenClient ??= buildTokenClient();
-		tokenClient.requestAccessToken({ prompt: "select_account" });
+		if (forceSelectAccount) {
+			clearCachedEmail();
+			clearSessionToken();
+			activeToken = null;
+			tokenClient.requestAccessToken({ prompt: "select_account" });
+		} else {
+			const hint = getCachedEmail() ?? undefined;
+			tokenClient.requestAccessToken(hint ? { hint } : { prompt: "select_account" });
+		}
 	});
 }
 

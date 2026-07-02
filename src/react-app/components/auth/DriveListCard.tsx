@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 
 import { useI18n } from "@/i18n";
-import { deleteDriveVault, listDriveVaults, type DriveEntryMeta } from "@/services/googleDrive";
+import { deleteDriveVault, getCachedAccountEmail, listDriveVaults, type DriveEntryMeta } from "@/services/googleDrive";
 import { GoogleDriveIcon } from "../GoogleDriveIcon";
 import { Button, IconButton } from "../ui";
 import { type App, Card, cardMotion } from "./shared";
@@ -12,6 +12,7 @@ export function DriveListCard({ app }: { app: App }) {
 	const { t } = useI18n();
 	const [vaults, setVaults] = useState<DriveEntryMeta[] | null>(null);
 	const [loadError, setLoadError] = useState(false);
+	const accountEmail = getCachedAccountEmail();
 
 	useEffect(() => {
 		listDriveVaults()
@@ -30,17 +31,31 @@ export function DriveListCard({ app }: { app: App }) {
 	return (
 		<motion.div {...cardMotion}>
 			<Card>
-				<div className="flex items-center gap-2 -ml-2 mb-6">
+				<div className="flex items-center justify-between -ml-2 mb-6">
+					<div className="flex items-center gap-2">
+						<Button
+							variant="ghost"
+							icon={<ChevronLeft size={18} strokeWidth={2.5} />}
+							onClick={app.goBackFromDriveList}
+							className="p-2"
+						/>
+						<GoogleDriveIcon size={18} />
+						<div>
+							<h2 className="text-base font-semibold text-slate-700">
+								{t("driveList.title")}
+							</h2>
+							{accountEmail && (
+								<p className="text-xs text-slate-400 leading-tight">{accountEmail}</p>
+							)}
+						</div>
+					</div>
 					<Button
 						variant="ghost"
-						icon={<ChevronLeft size={18} strokeWidth={2.5} />}
-						onClick={app.goBackFromDriveList}
-						className="p-2"
-					/>
-					<GoogleDriveIcon size={18} />
-					<h2 className="text-base font-semibold text-slate-700">
-						{t("driveList.title")}
-					</h2>
+						onClick={() => void app.switchDriveAccount()}
+						className="text-xs shrink-0"
+					>
+						{t("driveList.switchAccount")}
+					</Button>
 				</div>
 
 				{vaults === null ? (

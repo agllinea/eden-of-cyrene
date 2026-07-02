@@ -129,6 +129,16 @@ export function useAuthFlow({
 		}
 	};
 
+	const switchDriveAccount = async () => {
+		setPhase("login");
+		try {
+			await googleSignIn(true);
+			setPhase("driveList");
+		} catch {
+			setStatus(msg("error", "status.driveSignInFailed"));
+		}
+	};
+
 	const openDriveVaultById = async (fileId: string) => {
 		try {
 			const vaultFile = await loadDriveVault(fileId);
@@ -291,6 +301,7 @@ export function useAuthFlow({
 		openCacheList,
 		openCachedVaultById,
 		openDriveList,
+		switchDriveAccount,
 		openDriveVaultById,
 		unlockVault,
 		startNewVault,

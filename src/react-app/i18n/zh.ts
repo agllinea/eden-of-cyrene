@@ -145,6 +145,7 @@ export const zh: Record<MessageKey, string> = {
 	"driveList.title": "Google Drive",
 	"driveList.empty": "Google Drive 中没有找到 Vault 文件",
 	"driveList.modified": "修改于 {time}",
+	"driveList.switchAccount": "切换账号",
 
 	// ── Cache state labels ──
 	"cache.idle": "尚未储存",

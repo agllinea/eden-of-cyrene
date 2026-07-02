@@ -144,6 +144,7 @@ export const en = {
 	"driveList.title": "Google Drive",
 	"driveList.empty": "No vault files found in Google Drive",
 	"driveList.modified": "Modified {time}",
+	"driveList.switchAccount": "Switch Account",
 
 	// ── Cache state labels ──
 	"cache.idle": "Not saved yet",

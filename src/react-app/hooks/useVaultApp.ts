@@ -35,6 +35,7 @@ export function useVaultApp() {
 		vault: document.vault,
 		session: encryption.session,
 		phase,
+		onMergedFromRemote: document.loadVault,
 	});
 	const auth = useAuthFlow({
 		setPhase,

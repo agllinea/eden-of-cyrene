@@ -238,6 +238,18 @@ export async function serializeVaultWithSession(
 	return JSON.stringify(encrypted, null, 2);
 }
 
+/** Cheap: decrypts a file with the cached session key (no PBKDF2). Reverse of `serializeVaultWithSession`. */
+export async function decryptVaultWithSession(
+	file: EncryptedVault,
+	session: SessionCrypto,
+): Promise<Vault> {
+	if (session.mode === "none") {
+		throw new Error("缺少解密所需的密钥。");
+	}
+	const vaultText = await decryptText(file.encryption.vault, session.vaultKey);
+	return parseVaultObject(JSON.parse(vaultText));
+}
+
 // ── Attachment sealing (for the split browser cache) ──────────────────────────
 //
 // Cached attachment blobs are stored separately from the main document so the

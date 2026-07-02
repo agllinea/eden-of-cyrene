@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createEmptyVault, type EncryptionSettings, type Vault } from "@/domain/types";
 import {
 	createSession,
+	decryptVaultWithSession,
 	isEncryptedVault,
 	openAttachment,
 	parseVaultFile,
@@ -94,6 +95,41 @@ describe("password encryption", () => {
 	it("rejects encrypted mode with no password and no questions", async () => {
 		await expect(
 			createSession({ mode: "encrypted", password: "  ", securityQuestions: [] }),
+		).rejects.toThrow();
+	});
+});
+
+describe("decryptVaultWithSession", () => {
+	it("decrypts a vault serialized under a freshly created session (no PBKDF2)", async () => {
+		const vault = sampleVault();
+		const session = await createSession(encryptedSettings("hunter2"));
+		const file = parseVaultFile(await serializeVaultWithSession(vault, session));
+		if (!isEncryptedVault(file)) throw new Error("expected encrypted");
+
+		const decrypted = await decryptVaultWithSession(file, session);
+		expect(decrypted.entries).toEqual(vault.entries);
+	});
+
+	it("decrypts using a session reused from an unlocked file (sessionFromUnlocked)", async () => {
+		const vault = sampleVault();
+		const session = await createSession(encryptedSettings("pw-123"));
+		const file = parseVaultFile(await serializeVaultWithSession(vault, session));
+		if (!isEncryptedVault(file)) throw new Error("expected encrypted");
+
+		const { vaultKey } = await unlockWithPassword(file, "pw-123");
+		const reused = sessionFromUnlocked(file, vaultKey);
+
+		const decrypted = await decryptVaultWithSession(file, reused);
+		expect(decrypted.entries).toEqual(vault.entries);
+	});
+
+	it("rejects when the session has no key (mode: none)", async () => {
+		const session = await createSession(encryptedSettings("pw-123"));
+		const file = parseVaultFile(await serializeVaultWithSession(sampleVault(), session));
+		if (!isEncryptedVault(file)) throw new Error("expected encrypted");
+
+		await expect(
+			decryptVaultWithSession(file, { mode: "none", epoch: "x" }),
 		).rejects.toThrow();
 	});
 });

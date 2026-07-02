@@ -74,7 +74,7 @@ export function useVaultDocument() {
 						if (e.category !== category || !(propKey in e.customProperties)) return e;
 						const next = { ...e.customProperties };
 						delete next[propKey];
-						return { ...e, customProperties: next };
+						return { ...e, customProperties: next, updatedAt: new Date().toISOString() };
 					}),
 				}),
 			),

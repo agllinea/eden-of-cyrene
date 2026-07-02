@@ -60,7 +60,8 @@ export function withInheritedCategoryProperties(vault: Vault, entry: Entry): Ent
 }
 
 export function upsertEntry(vault: Vault, entry: Entry): Vault {
-	const nextEntry = withInheritedCategoryProperties(vault, entry);
+	const inherited = withInheritedCategoryProperties(vault, entry);
+	const nextEntry = { ...inherited, updatedAt: new Date().toISOString() };
 	const exists = vault.entries.some((candidate) => candidate.id === entry.id);
 	const entries = exists
 		? vault.entries.map((candidate) =>
@@ -72,8 +73,15 @@ export function upsertEntry(vault: Vault, entry: Entry): Vault {
 }
 
 export function removeEntry(vault: Vault, entryId: string): Vault {
+	const deletedAt = new Date().toISOString();
+	const hasTombstone = vault.deletedEntries.some((t) => t.id === entryId);
+	const deletedEntries = hasTombstone
+		? vault.deletedEntries.map((t) => (t.id === entryId ? { id: entryId, deletedAt } : t))
+		: [...vault.deletedEntries, { id: entryId, deletedAt }];
+
 	return touchVault({
 		...vault,
 		entries: vault.entries.filter((entry) => entry.id !== entryId),
+		deletedEntries,
 	});
 }

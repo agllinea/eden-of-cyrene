@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { CacheState } from "@/domain/status";
 import type { Vault } from "@/domain/types";
+import { hasContentDiverged } from "@/domain/vaultMerge";
 import type { SessionCrypto } from "@/services/cryptoVault";
 import { getProvider, readCacheMeta } from "@/services/storage";
 import {
@@ -10,6 +11,7 @@ import {
 	saveToDrive,
 	type DriveState,
 } from "@/services/googleDrive";
+import { reconcileWithDrive } from "@/services/vaultSync";
 
 import type { AppPhase } from "./phase";
 
@@ -17,10 +19,12 @@ interface PersistenceArgs {
 	vault: Vault;
 	session: SessionCrypto;
 	phase: AppPhase;
+	/** Applies a vault merged in from Drive during a push so the UI reflects it too. */
+	onMergedFromRemote: (vault: Vault) => void;
 }
 
 /** Owns the browser-cache and Google Drive lifecycle: mount probe, debounced autosave, export. */
-export function useVaultPersistence({ vault, session, phase }: PersistenceArgs) {
+export function useVaultPersistence({ vault, session, phase, onMergedFromRemote }: PersistenceArgs) {
 	const [cacheEnabled, setCacheEnabled] = useState(true);
 	const [cacheState, setCacheState] = useState<CacheState>({ status: "idle" });
 
@@ -70,12 +74,25 @@ export function useVaultPersistence({ vault, session, phase }: PersistenceArgs) 
 		if (!driveLinked || !isSignedIn()) return;
 		setDriveState("syncing");
 		try {
-			await saveToDrive(vault, session);
+			const fileId = getDriveFileId(vault.createdAt);
+			if (fileId) {
+				// Merge in whatever's currently on Drive before overwriting it, so a
+				// concurrent edit from another device isn't silently clobbered.
+				const merged = await reconcileWithDrive(vault, fileId, session);
+				if (hasContentDiverged(merged, vault)) {
+					onMergedFromRemote(merged);
+					await saveToDrive(merged, session);
+				} else {
+					await saveToDrive(vault, session);
+				}
+			} else {
+				await saveToDrive(vault, session);
+			}
 			setDriveState("synced");
 		} catch {
 			setDriveState("error");
 		}
-	}, [vault, session, driveLinked]);
+	}, [vault, session, driveLinked, onMergedFromRemote]);
 
 	// Drive autosave: 30 s debounce, only when vault is linked to a Drive file.
 	useEffect(() => {

@@ -27,12 +27,18 @@ export type Entry = {
 	updatedAt: string;
 };
 
+export type EntryTombstone = {
+	id: string;
+	deletedAt: string;
+};
+
 export type Vault = {
 	kind: "Vault";
-	formatVersion: 1;
+	formatVersion: 2;
 	name: string;
 	entries: Entry[];
 	categories: CategoryDef[];
+	deletedEntries: EntryTombstone[];
 	createdAt: string;
 	updatedAt: string;
 };
@@ -93,10 +99,11 @@ export function createEmptyVault(): Vault {
 
 	return {
 		kind: "Vault",
-		formatVersion: 1,
+		formatVersion: 2,
 		name: "Eden of Cyrene Vault",
 		entries: [],
 		categories: [],
+		deletedEntries: [],
 		createdAt: now,
 		updatedAt: now,
 	};

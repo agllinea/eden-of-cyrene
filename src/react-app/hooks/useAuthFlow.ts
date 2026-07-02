@@ -10,6 +10,7 @@ import {
 	type VaultFile,
 } from "@/domain/types";
 import { touchVault } from "@/domain/vaultLogic";
+import { hasContentDiverged } from "@/domain/vaultMerge";
 import {
 	isEncryptedVault,
 	noEncryptionSession,
@@ -24,8 +25,10 @@ import {
 import {
 	linkVaultToDrive,
 	loadDriveVault,
+	saveToDrive,
 	signIn as googleSignIn,
 } from "@/services/googleDrive";
+import { reconcileWithLocalCache } from "@/services/vaultSync";
 
 import type { EncryptionController } from "./useEncryption";
 import type { AppPhase, UnlockMode } from "./phase";
@@ -88,6 +91,12 @@ export function useAuthFlow({
 			vault = await hydrateAttachments(vault, noEncryptionSession(), cacheVaultId);
 		}
 		if (driveFileId !== null) {
+			const session = noEncryptionSession();
+			const merged = await reconcileWithLocalCache(vault, session);
+			if (hasContentDiverged(merged, vault)) {
+				vault = merged;
+				void saveToDrive(vault, session).catch(() => {});
+			}
 			linkVaultToDrive(vault.createdAt, driveFileId);
 		}
 		document.loadVault(vault);
@@ -175,6 +184,11 @@ export function useAuthFlow({
 				nextVault = await hydrateAttachments(nextVault, session, pendingCacheVaultId);
 			}
 			if (pendingDriveFileId !== null) {
+				const merged = await reconcileWithLocalCache(nextVault, session);
+				if (hasContentDiverged(merged, nextVault)) {
+					nextVault = merged;
+					void saveToDrive(nextVault, session).catch(() => {});
+				}
 				linkVaultToDrive(nextVault.createdAt, pendingDriveFileId);
 			}
 			document.loadVault(nextVault);

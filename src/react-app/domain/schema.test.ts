@@ -89,3 +89,19 @@ describe("migrateVaultFile", () => {
 		).toThrow();
 	});
 });
+
+describe("deletedEntries (tombstones)", () => {
+	it("round-trips a vault with tombstones", () => {
+		const vault = {
+			...createEmptyVault(),
+			deletedEntries: [{ id: "gone", deletedAt: "2026-01-01T00:00:00.000Z" }],
+		};
+		const parsed = parseVaultObject(vault);
+		expect(parsed.deletedEntries).toEqual(vault.deletedEntries);
+	});
+
+	it("rejects a formatVersion-2 vault missing deletedEntries (migration, not schema, backfills it)", () => {
+		const broken = { ...createEmptyVault(), deletedEntries: undefined };
+		expect(() => parseVaultObject(broken)).toThrow();
+	});
+});

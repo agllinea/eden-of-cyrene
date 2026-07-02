@@ -115,4 +115,25 @@ describe("upsertEntry / removeEntry", () => {
 		const next = removeEntry(vault, "a");
 		expect(next.entries.map((e) => e.id)).toEqual(["b"]);
 	});
+
+	it("bumps updatedAt on insert and on edit", () => {
+		const stale = "2020-01-01T00:00:00.000Z";
+		const vault = vaultWith([]);
+
+		const inserted = upsertEntry(vault, entry({ id: "a", updatedAt: stale }));
+		expect(inserted.entries[0].updatedAt).not.toBe(stale);
+
+		const edited = upsertEntry(inserted, entry({ id: "a", name: "renamed", updatedAt: stale }));
+		expect(edited.entries[0].updatedAt).not.toBe(stale);
+	});
+
+	it("records a tombstone on delete, without duplicating it on repeated deletes", () => {
+		const vault = vaultWith([entry({ id: "a" })]);
+
+		const once = removeEntry(vault, "a");
+		expect(once.deletedEntries.map((t) => t.id)).toEqual(["a"]);
+
+		const twice = removeEntry(once, "a");
+		expect(twice.deletedEntries).toHaveLength(1);
+	});
 });

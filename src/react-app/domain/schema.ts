@@ -33,12 +33,18 @@ const entrySchema = z.object({
 	updatedAt: z.string(),
 });
 
+const tombstoneSchema = z.object({
+	id: z.string(),
+	deletedAt: z.string(),
+});
+
 export const vaultSchema = z.object({
 	kind: z.literal("Vault"),
-	formatVersion: z.literal(1),
+	formatVersion: z.literal(2),
 	name: z.string(),
 	entries: z.array(entrySchema),
 	categories: z.array(categorySchema),
+	deletedEntries: z.array(tombstoneSchema),
 	createdAt: z.string(),
 	updatedAt: z.string(),
 });

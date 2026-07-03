@@ -12,6 +12,10 @@ import { touchVault } from "./vaultLogic";
 
 function pickNewerEntry(a: Entry, b: Entry): Entry {
 	if (a.updatedAt !== b.updatedAt) return a.updatedAt > b.updatedAt ? a : b;
+	// Exact timestamp tie (two devices with synced clocks editing the same entry
+	// between syncs): fall back to lexicographic JSON comparison so the result is
+	// still deterministic and order-independent, but which edit "wins" is
+	// arbitrary — whichever serializes higher. Collisions are expected to be rare.
 	const jsonA = JSON.stringify(a);
 	const jsonB = JSON.stringify(b);
 	if (jsonA === jsonB) return a;

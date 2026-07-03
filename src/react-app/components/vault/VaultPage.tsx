@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useState } from "react";
 
 import type { VaultApp } from "@/hooks/useVaultApp";
@@ -58,14 +58,36 @@ export default function VaultPage({ app }: { app: VaultApp }) {
 				<main className="flex-1 relative overflow-hidden bg-pw-50/40 md:bg-white">
 					<EntryListArea app={app} />
 
-					{/* FAB — kept clear of the home indicator on notched phones */}
-					<div className="absolute fab-safe">
+					{/* FAB — desktop only, kept clear of the home indicator */}
+					<div className="hidden md:block absolute fab-safe">
 						<Button
 							variant="primary"
 							onClick={app.openNewEntry}
 							aria-label={t("fab.newEntry")}
 							icon={<Plus size={24} strokeWidth={2} />}
-							className="p-0! w-13 h-13 rounded-2xl shadow-lg shadow-ac-300/20"
+							className="p-0! w-13 h-13 rounded-2xl shadow-md"
+						/>
+					</div>
+
+					{/* Mobile floating bottom bar — search + FAB */}
+					<div className="md:hidden absolute bottom-0 left-0 right-0 flex items-end gap-3 px-4 pt-4 pb-safe-4 bg-linear-to-t from-white/95 via-white/80 to-transparent backdrop-blur-[2px]">
+						<div className="flex-1 relative">
+							<span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ac-500 pointer-events-none">
+								<Search size={14} />
+							</span>
+							<input
+								value={app.searchText}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => app.setSearchText(e.target.value)}
+								placeholder={t("sidebar.search")}
+								className="w-full h-13 pl-9 pr-4 rounded-2xl bg-linear-to-br from-pw-100 to-ac-100 text-ac-700 text-base placeholder:text-ac-400/70 border-0 focus:outline-none focus:ring-2 focus:ring-ac-200 shadow-md transition-all"
+							/>
+						</div>
+						<Button
+							variant="primary"
+							onClick={app.openNewEntry}
+							aria-label={t("fab.newEntry")}
+							icon={<Plus size={24} strokeWidth={2} />}
+							className="p-0! w-13 h-13 rounded-2xl shadow-md shrink-0"
 						/>
 					</div>
 				</main>

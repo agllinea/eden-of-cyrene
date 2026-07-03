@@ -77,7 +77,7 @@ export function EntryTable({ app }: { app: App }) {
 	const isTouch = useMediaQuery("(hover: none)");
 
 	return (
-		<div className="overflow-auto h-full bg-white">
+		<div className="overflow-auto h-full bg-white pb-24 md:pb-0">
 			<table className="w-full min-w-max text-sm">
 				<thead className="sticky top-0 z-20 bg-linear-to-r from-pw-100 to-ac-100 backdrop-blur-sm border-b border-pw-100">
 					<tr>

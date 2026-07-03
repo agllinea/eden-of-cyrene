@@ -10,17 +10,17 @@ export const en = {
 
 	// ── Login ──
 	"login.subtitle": "A secure, elegant password manager",
-	"login.openFile.title": "Open a Vault file",
+	"login.openFile.title": "Upload a MEMORY",
 	"login.openFile.text": "Open a local .eden.json file",
 	"login.useCache.title": "Use browser cache",
 	"login.useGoogleDrive.title": "Continue with Google",
-	"login.useGoogleDrive.text": "Open or save vaults in Google Drive",
-	"login.newVault.title": "New Vault",
+	"login.useGoogleDrive.text": "Open or save memories in Google Drive",
+	"login.newVault.title": "CreateNew MEMORY",
 	"login.newVault.text": "Start from scratch",
 
 	// ── Setup: password ──
-	"setup.title": "New Vault",
-	"setup.vaultName": "Vault name",
+	"setup.title": "New MEMORY",
+	"setup.vaultName": "MEMORY name",
 	"setup.password": "Password",
 	"setup.next": "Next",
 	"setup.noPassword": "No password",
@@ -30,11 +30,11 @@ export const en = {
 	"setupQ.question": "Question {n}",
 	"setupQ.answer": "Answer {n}",
 	"setupQ.add": "Add security question",
-	"setupQ.saveEnter": "Save and open Vault",
+	"setupQ.saveEnter": "Save and open MEMORY",
 	"setupQ.skip": "Skip — configure later in settings",
 
 	// ── Unlock ──
-	"unlock.title": "Unlock Vault",
+	"unlock.title": "Unlock MEMORY",
 	"unlock.password": "Password",
 	"unlock.answer": "Answer",
 	"unlock.questionLabel": "Question {n}: {q}",
@@ -69,7 +69,8 @@ export const en = {
 	"entry.notesPlaceholder": "Optional notes…",
 	"entry.customProps": "Custom properties",
 	"entry.attachments": "Attachments",
-	"entry.confirmDelete": "Delete this entry?",
+	"entry.confirmDelete": "Are you sure you want to delete this entry?",
+	"entry.confirmDeleteTitle": "Delete Entry",
 
 	// ── Category input ──
 	"categoryInput.placeholder": "Select or create a category…",
@@ -92,6 +93,8 @@ export const en = {
 	"attachment.add": "Add attachment",
 	"attachment.view": "View image",
 	"attachment.download": "Download attachment",
+	"attachment.deleteTitle": "Delete Attachment",
+	"attachment.deleteBody": "Delete \"{name}\"?",
 
 	// ── Custom properties ──
 	"customProps.deleteTitle": "Delete Field",
@@ -108,12 +111,12 @@ export const en = {
 	"sidebar.newCategory": "New category",
 
 	// ── Settings ──
-	"settings.title": "Vault settings",
-	"settings.vaultName": "Vault name",
+	"settings.title": "MEMORY settings",
+	"settings.vaultName": "MEMORY name",
 	"settings.cache": "Browser cache",
 	"settings.autoSave": "Auto-save to browser",
 	"settings.export": "Export",
-	"settings.download": "Download Vault file",
+	"settings.download": "Download MEMORY file",
 	"settings.downloading": "Downloading…",
 	"settings.encryption": "Encryption",
 	"settings.encrypted": "Encrypted",
@@ -138,13 +141,13 @@ export const en = {
 	"lang.en": "English",
 
 	// ── Cache list ──
-	"cacheList.title": "Cached Vaults",
-	"cacheList.empty": "No vaults saved in browser cache",
+	"cacheList.title": "Cached Memories",
+	"cacheList.empty": "No memories saved in browser cache",
 	"cacheList.savedAt": "Saved {time}",
 
 	// ── Drive list ──
 	"driveList.title": "Google Drive",
-	"driveList.empty": "No vault files found in Google Drive",
+	"driveList.empty": "No memories found in Google Drive",
 	"driveList.modified": "Modified {time}",
 	"driveList.switchAccount": "Switch Account",
 
@@ -152,7 +155,7 @@ export const en = {
 	"cache.idle": "Not saved yet",
 	"cache.none": "No browser cache",
 	"cache.unavailable": "Cannot read browser cache",
-	"cache.available": "Browser cache: {count} vault(s)",
+	"cache.available": "Browser cache: {count} MEMORY",
 	"cache.saving": "Saving…",
 	"cache.saved": "Saved to cache",
 	"cache.error": "Cache save failed",
@@ -168,14 +171,14 @@ export const en = {
 	"status.driveLoaded": "Loaded from Google Drive.",
 	"status.driveReadFailed": "Couldn't load from Google Drive.",
 	"status.driveSignInFailed": "Google sign-in failed.",
-	"status.unlocked": "Vault unlocked.",
+	"status.unlocked": "MEMORY unlocked.",
 	"status.unlockFailed": "Unlock failed. Check your input.",
-	"status.vaultCreatedNoPassword": "Created a vault with no password.",
+	"status.vaultCreatedNoPassword": "MEMORY created (no password).",
 	"status.passwordRequired": "Enter a password, or choose to continue without one.",
-	"status.vaultCreated": "Vault created.",
+	"status.vaultCreated": "MEMORY created.",
 	"status.entrySaved": "Entry saved.",
 	"status.entryDeleted": "Entry deleted.",
-	"status.downloaded": "Vault file downloaded.",
+	"status.downloaded": "MEMORY file downloaded.",
 	"status.downloadFailed": "Download failed.",
 	"status.copied": "Copied.",
 	"status.copyFailed": "Couldn't copy.",
@@ -224,6 +227,7 @@ export const en = {
 	"icon.Zap": "Energy",
 
 	// ── Misc ──
+	"app.name": "Eden of Cyrene",
 	"a11y.close": "Close",
 	"a11y.copy": "Copy",
 } as const;

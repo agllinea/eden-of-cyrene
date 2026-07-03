@@ -11,17 +11,17 @@ export const zh: Record<MessageKey, string> = {
 
 	// ── Login ──
 	"login.subtitle": "安全、优雅的密码管理器",
-	"login.openFile.title": "上传 Vault 文件",
+	"login.openFile.title": "上传「记忆」",
 	"login.openFile.text": "打开本地 .eden.json 文件",
 	"login.useCache.title": "使用浏览器缓存",
-	"login.useGoogleDrive.title": "使用 Google 账户",
-	"login.useGoogleDrive.text": "通过 Google Drive 打开或保存 Vault",
-	"login.newVault.title": "新建 Vault",
+	"login.useGoogleDrive.title": "使用谷歌账户",
+	"login.useGoogleDrive.text": "通过谷歌云盘使用「记忆」",
+	"login.newVault.title": "新的「记忆」",
 	"login.newVault.text": "从零开始创建",
 
 	// ── Setup: password ──
-	"setup.title": "新建 Vault",
-	"setup.vaultName": "Vault 名称",
+	"setup.title": "新的「记忆」",
+	"setup.vaultName": "名称",
 	"setup.password": "密码",
 	"setup.next": "下一步",
 	"setup.noPassword": "不使用密码",
@@ -31,11 +31,11 @@ export const zh: Record<MessageKey, string> = {
 	"setupQ.question": "问题 {n}",
 	"setupQ.answer": "回答 {n}",
 	"setupQ.add": "添加安全问题",
-	"setupQ.saveEnter": "保存并进入 Vault",
+	"setupQ.saveEnter": "保存并进入「记忆」",
 	"setupQ.skip": "跳过，稍后在设置中配置",
 
 	// ── Unlock ──
-	"unlock.title": "解锁 Vault",
+	"unlock.title": "解锁「记忆」",
 	"unlock.password": "密码",
 	"unlock.answer": "回答",
 	"unlock.questionLabel": "问题 {n}：{q}",
@@ -70,7 +70,8 @@ export const zh: Record<MessageKey, string> = {
 	"entry.notesPlaceholder": "可选备注…",
 	"entry.customProps": "自定义属性",
 	"entry.attachments": "附件",
-	"entry.confirmDelete": "确认删除？",
+	"entry.confirmDelete": "确认要删除这条记录吗？",
+	"entry.confirmDeleteTitle": "删除记录",
 
 	// ── Category input ──
 	"categoryInput.placeholder": "选择或新建类别…",
@@ -93,6 +94,8 @@ export const zh: Record<MessageKey, string> = {
 	"attachment.add": "添加附件",
 	"attachment.view": "查看图片",
 	"attachment.download": "下载附件",
+	"attachment.deleteTitle": "删除附件",
+	"attachment.deleteBody": "确认删除附件「{name}」？",
 
 	// ── Custom properties ──
 	"customProps.deleteTitle": "删除自定义字段",
@@ -109,12 +112,12 @@ export const zh: Record<MessageKey, string> = {
 	"sidebar.newCategory": "新建类别",
 
 	// ── Settings ──
-	"settings.title": "Vault 设置",
-	"settings.vaultName": "Vault 名称",
+	"settings.title": "「记忆」设置",
+	"settings.vaultName": "「记忆」名称",
 	"settings.cache": "浏览器缓存",
 	"settings.autoSave": "自动保存到浏览器",
 	"settings.export": "导出",
-	"settings.download": "下载 Vault 文件",
+	"settings.download": "下载「记忆」",
 	"settings.downloading": "下载中…",
 	"settings.encryption": "加密",
 	"settings.encrypted": "已加密",
@@ -140,12 +143,12 @@ export const zh: Record<MessageKey, string> = {
 
 	// ── Cache list ──
 	"cacheList.title": "浏览器缓存",
-	"cacheList.empty": "浏览器缓存中没有保存的 Vault",
+	"cacheList.empty": "浏览器缓存中没有保存的「记忆」",
 	"cacheList.savedAt": "保存于 {time}",
 
 	// ── Drive list ──
 	"driveList.title": "Google Drive",
-	"driveList.empty": "Google Drive 中没有找到 Vault 文件",
+	"driveList.empty": "Google Drive 中没有找到「记忆」",
 	"driveList.modified": "修改于 {time}",
 	"driveList.switchAccount": "切换账号",
 
@@ -153,7 +156,7 @@ export const zh: Record<MessageKey, string> = {
 	"cache.idle": "尚未储存",
 	"cache.none": "没有浏览器缓存",
 	"cache.unavailable": "无法读取浏览器缓存",
-	"cache.available": "浏览器缓存：{count} 个 Vault",
+	"cache.available": "浏览器缓存：{count} 个「记忆」",
 	"cache.saving": "缓存中…",
 	"cache.saved": "缓存中，已储存",
 	"cache.error": "缓存中，储存失败",
@@ -169,14 +172,14 @@ export const zh: Record<MessageKey, string> = {
 	"status.driveLoaded": "已从 Google Drive 读取。",
 	"status.driveReadFailed": "无法从 Google Drive 读取。",
 	"status.driveSignInFailed": "Google 登录失败。",
-	"status.unlocked": "Vault 已解锁。",
+	"status.unlocked": "「记忆」已解锁。",
 	"status.unlockFailed": "解锁失败，请检查输入。",
-	"status.vaultCreatedNoPassword": "已创建无密码 Vault。",
+	"status.vaultCreatedNoPassword": "已创建无密码「记忆」。",
 	"status.passwordRequired": "请输入密码，或选择不使用密码。",
-	"status.vaultCreated": "已创建 Vault。",
+	"status.vaultCreated": "已创建「记忆」。",
 	"status.entrySaved": "Entry 已保存。",
 	"status.entryDeleted": "Entry 已删除。",
-	"status.downloaded": "已下载 Vault 文件。",
+	"status.downloaded": "已下载「记忆」文件。",
 	"status.downloadFailed": "下载失败。",
 	"status.copied": "已复制。",
 	"status.copyFailed": "复制失败。",
@@ -225,6 +228,7 @@ export const zh: Record<MessageKey, string> = {
 	"icon.Zap": "能源",
 
 	// ── Misc ──
+	"app.name": "小善见天",
 	"a11y.close": "关闭",
 	"a11y.copy": "复制",
 };

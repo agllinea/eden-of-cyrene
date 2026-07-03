@@ -151,23 +151,10 @@ export default function EntryModal({
                         </>
                     ) : (
                         <>
-                            {!confirmDelete && (
-                                <Button variant="danger" className="mr-auto gap-2" onClick={() => setConfirmDelete(true)}>
-                                    <Trash2 size={13} />
-                                    {t("common.delete")}
-                                </Button>
-                            )}
-                            {confirmDelete && (
-                                <div className="flex items-center gap-2 mr-auto">
-                                    <span className="text-xs text-red-400">{t("entry.confirmDelete")}</span>
-                                    <Button variant="danger" onClick={() => onDelete(local.id)}>
-                                        {t("common.confirm")}
-                                    </Button>
-                                    <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(false)}>
-                                        {t("common.cancel")}
-                                    </Button>
-                                </div>
-                            )}
+                            <Button variant="danger" className="mr-auto gap-2" onClick={() => setConfirmDelete(true)}>
+                                <Trash2 size={13} />
+                                {t("common.delete")}
+                            </Button>
                             <Button variant="ghost" onClick={onClose}>
                                 {t("common.cancel")}
                             </Button>
@@ -176,6 +163,26 @@ export default function EntryModal({
                     )}
                 </ModalFooter>
             </Modal>
+
+            {confirmDelete && createPortal(
+                <Modal isOpen onClose={() => setConfirmDelete(false)} size="sm">
+                    <ModalHeader onClose={() => setConfirmDelete(false)}>
+                        {t("entry.confirmDeleteTitle")}
+                    </ModalHeader>
+                    <ModalBody>
+                        <p className="text-sm text-slate-600">{t("entry.confirmDelete")}</p>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
+                            {t("common.cancel")}
+                        </Button>
+                        <Button variant="danger" onClick={() => onDelete(local.id)}>
+                            {t("common.delete")}
+                        </Button>
+                    </ModalFooter>
+                </Modal>,
+                document.body,
+            )}
 
             {/* Delete-field confirmation — rendered via portal so it escapes the
                 motion.div stacking context of the entry modal above. */}

@@ -301,7 +301,7 @@ export default function SettingsModal({
 											/>
 											<FloatingPasswordInput
 												label={t("settings.answer", { n: i + 1 })}
-												value={"answer" in q ? (q as { answer: string }).answer : ""}
+												value={q.answer}
 												onChange={(e) => updateQuestion(q.id, "answer", e.target.value)}
 											/>
 										</div>

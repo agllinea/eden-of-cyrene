@@ -13,7 +13,7 @@ export const cls = {
 	/** Ghost — neutral, low emphasis (the one unified ghost look) */
 	btnGhost:     "text-slate-400 hover:bg-slate-100 hover:text-slate-600",
 	/** Danger — red-tinted light */
-	btnDanger:    "bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 hover:border-red-300",
+	btnDanger:    "bg-red-50 hover:bg-red-100 text-red-600",
 
 	// ── Non-solid variants ──
 	/** Link — brand-color text */

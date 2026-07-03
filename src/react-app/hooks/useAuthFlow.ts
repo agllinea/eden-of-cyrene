@@ -7,6 +7,7 @@ import {
 	type EncryptedVault,
 	type EncryptionSettings,
 	type SecurityQuestion,
+	type Vault,
 	type VaultFile,
 } from "@/domain/types";
 import { touchVault } from "@/domain/vaultLogic";
@@ -16,6 +17,7 @@ import {
 	noEncryptionSession,
 	unlockWithAnswers,
 	unlockWithPassword,
+	type SessionCrypto,
 } from "@/services/cryptoVault";
 import {
 	hydrateAttachments,
@@ -60,6 +62,16 @@ export function useAuthFlow({
 		createBlankSecurityQuestion(),
 	]);
 
+	// Reconcile a vault with the local cache and link it to Drive.
+	// Returns the (possibly merged) vault and saves to Drive if content diverged.
+	const reconcileAndLink = async (vault: Vault, session: SessionCrypto, driveFileId: string): Promise<Vault> => {
+		const merged = await reconcileWithLocalCache(vault, session);
+		const result = hasContentDiverged(merged, vault) ? merged : vault;
+		if (result !== vault) void saveToDrive(result, session).catch(() => {});
+		linkVaultToDrive(result.createdAt, driveFileId);
+		return result;
+	};
+
 	const passwordSlot = lockedVault?.encryption.keySlots.find(
 		(slot) => slot.type === "password",
 	);
@@ -91,13 +103,7 @@ export function useAuthFlow({
 			vault = await hydrateAttachments(vault, noEncryptionSession(), cacheVaultId);
 		}
 		if (driveFileId !== null) {
-			const session = noEncryptionSession();
-			const merged = await reconcileWithLocalCache(vault, session);
-			if (hasContentDiverged(merged, vault)) {
-				vault = merged;
-				void saveToDrive(vault, session).catch(() => {});
-			}
-			linkVaultToDrive(vault.createdAt, driveFileId);
+			vault = await reconcileAndLink(vault, noEncryptionSession(), driveFileId);
 		}
 		document.loadVault(vault);
 		setPhase("ready");
@@ -184,12 +190,7 @@ export function useAuthFlow({
 				nextVault = await hydrateAttachments(nextVault, session, pendingCacheVaultId);
 			}
 			if (pendingDriveFileId !== null) {
-				const merged = await reconcileWithLocalCache(nextVault, session);
-				if (hasContentDiverged(merged, nextVault)) {
-					nextVault = merged;
-					void saveToDrive(nextVault, session).catch(() => {});
-				}
-				linkVaultToDrive(nextVault.createdAt, pendingDriveFileId);
+				nextVault = await reconcileAndLink(nextVault, session, pendingDriveFileId);
 			}
 			document.loadVault(nextVault);
 
@@ -271,8 +272,9 @@ export function useAuthFlow({
 		);
 	};
 
-	const goBackFromCacheList = () => setPhase("login");
-	const goBackFromDriveList = () => setPhase("login");
+	const goBackToLogin = () => setPhase("login");
+	const goBackFromCacheList = goBackToLogin;
+	const goBackFromDriveList = goBackToLogin;
 
 	const goBackFromUnlock = () => {
 		const origin =

@@ -126,6 +126,10 @@ declare const google: {
 let tokenClient: GsiTokenClient | null = null;
 let activeToken: { value: string; expiresAt: number } | null = loadSessionToken();
 let pendingAuth: { resolve: (t: string) => void; reject: (e: Error) => void } | null = null;
+// Dedupes concurrent signIn() calls (e.g. manual sync + the 30s autosave firing
+// close together) into a single OAuth request, so a second caller doesn't
+// overwrite `pendingAuth` and strand the first caller's promise forever.
+let inFlightAuth: Promise<string> | null = null;
 let gsiReady = false;
 
 async function loadGsi(): Promise<void> {
@@ -186,6 +190,15 @@ export function signOut(): void {
  */
 export async function signIn(forceSelectAccount = false): Promise<string> {
 	if (!forceSelectAccount && activeToken && Date.now() < activeToken.expiresAt) return activeToken.value;
+	if (inFlightAuth) return inFlightAuth;
+
+	inFlightAuth = requestToken(forceSelectAccount).finally(() => {
+		inFlightAuth = null;
+	});
+	return inFlightAuth;
+}
+
+async function requestToken(forceSelectAccount: boolean): Promise<string> {
 	await loadGsi();
 	return new Promise<string>((resolve, reject) => {
 		pendingAuth = { resolve, reject };
@@ -206,29 +219,53 @@ async function token(): Promise<string> {
 	return signIn(); // returns cached token when valid
 }
 
+/** Forces a fresh token request, bypassing the (now-rejected) cached one. */
+async function refreshToken(): Promise<string> {
+	activeToken = null;
+	clearSessionToken();
+	return signIn();
+}
+
 // ── Drive REST helpers ────────────────────────────────────────────────────────
+//
+// A 401 means the cached access token expired or was revoked server-side
+// (they're short-lived, ~1h). Retried once with a freshly requested token
+// before giving up, so a stale token doesn't surface as an opaque sync error.
+
+async function driveFetch(
+	url: string,
+	buildInit: (accessToken: string) => RequestInit,
+): Promise<Response> {
+	let t = await token();
+	let res = await fetch(url, buildInit(t));
+	if (res.status === 401) {
+		t = await refreshToken();
+		res = await fetch(url, buildInit(t));
+	}
+	return res;
+}
 
 async function driveGet(path: string): Promise<Response> {
-	const t = await token();
-	const res = await fetch(`${DRIVE_API}${path}`, {
+	const res = await driveFetch(`${DRIVE_API}${path}`, (t) => ({
 		headers: { Authorization: `Bearer ${t}` },
-	});
+	}));
 	if (!res.ok) throw new Error(`Drive GET ${path}: ${res.status}`);
 	return res;
 }
 
 async function driveCreate(fileName: string, body: string): Promise<string> {
-	const t = await token();
-	const form = new FormData();
-	form.append("metadata", new Blob(
-		[JSON.stringify({ name: fileName, mimeType: "application/json" })],
-		{ type: "application/json" },
-	));
-	form.append("media", new Blob([body], { type: "application/json" }));
-	const res = await fetch(`${UPLOAD_API}/files?uploadType=multipart&fields=id`, {
-		method: "POST",
-		headers: { Authorization: `Bearer ${t}` },
-		body: form,
+	const res = await driveFetch(`${UPLOAD_API}/files?uploadType=multipart&fields=id`, (t) => {
+		const form = new FormData();
+		form.append("metadata", new Blob(
+			[JSON.stringify({ name: fileName, mimeType: "application/json" })],
+			{ type: "application/json" },
+		));
+		form.append("media", new Blob([body], { type: "application/json" }));
+		return {
+			method: "POST",
+			headers: { Authorization: `Bearer ${t}` },
+			body: form,
+		};
 	});
 	if (!res.ok) throw new Error(`Drive create: ${res.status}`);
 	const data = await res.json() as { id: string };
@@ -236,21 +273,19 @@ async function driveCreate(fileName: string, body: string): Promise<string> {
 }
 
 async function driveUpdate(fileId: string, body: string): Promise<void> {
-	const t = await token();
-	const res = await fetch(`${UPLOAD_API}/files/${fileId}?uploadType=media`, {
+	const res = await driveFetch(`${UPLOAD_API}/files/${fileId}?uploadType=media`, (t) => ({
 		method: "PATCH",
 		headers: { Authorization: `Bearer ${t}`, "Content-Type": "application/json" },
 		body,
-	});
+	}));
 	if (!res.ok) throw new Error(`Drive update ${fileId}: ${res.status}`);
 }
 
 async function driveDeleteReq(fileId: string): Promise<void> {
-	const t = await token();
-	const res = await fetch(`${DRIVE_API}/files/${fileId}`, {
+	const res = await driveFetch(`${DRIVE_API}/files/${fileId}`, (t) => ({
 		method: "DELETE",
 		headers: { Authorization: `Bearer ${t}` },
-	});
+	}));
 	if (!res.ok && res.status !== 204) throw new Error(`Drive delete ${fileId}: ${res.status}`);
 }
 

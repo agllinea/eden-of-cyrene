@@ -91,6 +91,8 @@ export const zh: Record<MessageKey, string> = {
 
 	// ── Attachments ──
 	"attachment.add": "添加附件",
+	"attachment.view": "查看图片",
+	"attachment.download": "下载附件",
 
 	// ── Custom properties ──
 	"customProps.deleteTitle": "删除自定义字段",

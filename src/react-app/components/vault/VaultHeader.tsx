@@ -18,17 +18,14 @@ export function VaultHeader({ app, onMenuClick }: { app: App; onMenuClick: () =>
 			</h1>
 
 			{/* Search — desktop center */}
-			<div className="hidden md:flex flex-1 justify-center px-4 gap-2">
+			<div className="hidden md:flex flex-1 justify-center px-4">
 				<Input
 					leadingIcon={<Search size={14} />}
 					value={app.searchText}
 					onChange={(e) => app.setSearchText(e.target.value)}
-					// placeholder={t("sidebar.search")}
-					// className="max-w-xs w-full"
-					containerClassName="w-xs"
+					placeholder={t("sidebar.search")}
+					containerClassName="max-w-xs w-full"
 				/>
-				<Button className="px-7" variant="primary" onClick={() => app.setSettingsOpen(true)} size="sm">{t("sidebar.search")}</Button>
-			
 			</div>
 
 			<Button variant="ghost" onClick={() => app.setSettingsOpen(true)} icon={<Settings size={16} />} size="lg" className="ml-auto md:ml-0" />

@@ -90,6 +90,8 @@ export const en = {
 
 	// ── Attachments ──
 	"attachment.add": "Add attachment",
+	"attachment.view": "View image",
+	"attachment.download": "Download attachment",
 
 	// ── Custom properties ──
 	"customProps.deleteTitle": "Delete Field",

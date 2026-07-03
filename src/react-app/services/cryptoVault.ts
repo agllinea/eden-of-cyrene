@@ -102,7 +102,7 @@ async function importVaultKey(rawKey: string) {
 }
 
 function normalizeAnswers(answers: string[]) {
-	return answers.map((answer) => answer.trim().toLocaleLowerCase()).join("\n");
+	return answers.map((answer) => answer.trim()).join("\n");
 }
 
 async function createKeySlot(

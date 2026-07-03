@@ -192,8 +192,10 @@ validation + migration) are now done. Remaining lower-priority follow-ups:
 
 ### Known smaller limitations (note, low priority)
 
-- Security-question answers are normalized to trimmed/lowercased text → low
-  entropy; acceptable for the feature but weaker than the password slot.
+- Security-question answers are normalized to trimmed (case-sensitive, no
+  locale-specific casing applied — so non-Latin-script answers aren't mangled)
+  text → still lower entropy than a password; acceptable for the feature but
+  weaker than the password slot.
 - Attachments/category images live inside the vault as base64; very large
   attachments still bloat the single exported file (inherent to the single-file
   invariant).

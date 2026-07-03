@@ -155,13 +155,21 @@ describe("multi-slot envelope encryption", () => {
 		expect(byAnswers.vault.entries).toEqual(vault.entries);
 	});
 
-	it("normalizes answers (case- and whitespace-insensitive)", async () => {
+	it("normalizes answers (whitespace-insensitive, case-sensitive)", async () => {
 		const session = await createSession(encryptedSettings("pw-123", questions));
 		const file = parseVaultFile(await serializeVaultWithSession(sampleVault(), session));
 		if (!isEncryptedVault(file)) throw new Error("expected encrypted");
 
-		const { vault } = await unlockWithAnswers(file, ["  rEx ", "PARIS"]);
+		const { vault } = await unlockWithAnswers(file, ["  Rex ", " Paris "]);
 		expect(vault.kind).toBe("Vault");
+	});
+
+	it("fails with wrong-case answers", async () => {
+		const session = await createSession(encryptedSettings("pw-123", questions));
+		const file = parseVaultFile(await serializeVaultWithSession(sampleVault(), session));
+		if (!isEncryptedVault(file)) throw new Error("expected encrypted");
+
+		await expect(unlockWithAnswers(file, ["rex", "Paris"])).rejects.toThrow();
 	});
 
 	it("fails with wrong answers", async () => {

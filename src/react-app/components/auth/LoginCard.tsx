@@ -6,7 +6,8 @@ import { useI18n } from "@/i18n";
 import { cacheStateLabel } from "@/i18n/format";
 import { GoogleDriveIcon } from "../GoogleDriveIcon";
 import { OptionCard } from "../ui";
-import { App, AppLogo, Card, cardMotion } from "./shared";
+import { App, AppLogo, Card } from "./shared";
+import { cardMotion } from "./cardMotion";
 
 export function LoginCard({ app }: { app: App }) {
 	const fileRef = useRef<HTMLInputElement>(null);

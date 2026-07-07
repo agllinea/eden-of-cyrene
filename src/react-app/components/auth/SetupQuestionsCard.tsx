@@ -5,7 +5,8 @@ import { useState } from "react";
 import { createBlankSecurityQuestion } from "@/domain/types";
 import { useI18n } from "@/i18n";
 import { Button, FloatingInput, FloatingPasswordInput } from "../ui";
-import { App, Card, cardMotion } from "./shared";
+import { App, Card } from "./shared";
+import { cardMotion } from "./cardMotion";
 
 export function SetupQuestionsCard({ app }: { app: App }) {
 	const { t } = useI18n();

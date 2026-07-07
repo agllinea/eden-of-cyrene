@@ -24,7 +24,7 @@ export type DriveEntryMeta = {
 
 // ── localStorage: vault.createdAt → Drive file ID ────────────────────────────
 
-let driveFileIds: Map<string, string> = (() => {
+const driveFileIds: Map<string, string> = (() => {
 	try {
 		const raw = localStorage.getItem(MAPPING_KEY);
 		return raw ? new Map(JSON.parse(raw) as [string, string][]) : new Map();
@@ -59,10 +59,10 @@ function getCachedEmail(): string | null {
 	try { return localStorage.getItem(ACCOUNT_KEY); } catch { return null; }
 }
 function setCachedEmail(email: string) {
-	try { localStorage.setItem(ACCOUNT_KEY, email); } catch {}
+	try { localStorage.setItem(ACCOUNT_KEY, email); } catch { /* localStorage unavailable */ }
 }
 function clearCachedEmail() {
-	try { localStorage.removeItem(ACCOUNT_KEY); } catch {}
+	try { localStorage.removeItem(ACCOUNT_KEY); } catch { /* localStorage unavailable */ }
 }
 
 export function getCachedAccountEmail(): string | null { return getCachedEmail(); }
@@ -76,7 +76,7 @@ async function fetchAndCacheEmail(accessToken: string): Promise<void> {
 			const data = await res.json() as { email?: string };
 			if (data.email) setCachedEmail(data.email);
 		}
-	} catch {}
+	} catch { /* best-effort email fetch; ignore network/auth failures */ }
 }
 
 // ── Access token cache (sessionStorage — survives page refresh, not tab close) ─
@@ -85,7 +85,7 @@ function saveSessionToken(value: string, expiresAt: number) {
 	try {
 		sessionStorage.setItem(SESSION_TOKEN_KEY, value);
 		sessionStorage.setItem(SESSION_EXPIRY_KEY, String(expiresAt));
-	} catch {}
+	} catch { /* sessionStorage unavailable */ }
 }
 
 function loadSessionToken(): { value: string; expiresAt: number } | null {
@@ -93,7 +93,7 @@ function loadSessionToken(): { value: string; expiresAt: number } | null {
 		const value = sessionStorage.getItem(SESSION_TOKEN_KEY);
 		const expiresAt = Number(sessionStorage.getItem(SESSION_EXPIRY_KEY));
 		if (value && expiresAt && Date.now() < expiresAt) return { value, expiresAt };
-	} catch {}
+	} catch { /* sessionStorage unavailable */ }
 	return null;
 }
 
@@ -101,7 +101,7 @@ function clearSessionToken() {
 	try {
 		sessionStorage.removeItem(SESSION_TOKEN_KEY);
 		sessionStorage.removeItem(SESSION_EXPIRY_KEY);
-	} catch {}
+	} catch { /* sessionStorage unavailable */ }
 }
 
 // ── Google Identity Services (GIS) ────────────────────────────────────────────
@@ -342,7 +342,7 @@ export async function saveToDrive(vault: Vault, session: SessionCrypto): Promise
 
 export class GoogleDriveProvider implements VaultStorageProvider {
 	id = "google-drive";
-	labelKey: "login.useGoogleDrive.title" = "login.useGoogleDrive.title";
+	labelKey = "login.useGoogleDrive.title" as const;
 
 	async load(): Promise<VaultFile | null> {
 		return null; // use listDriveVaults + loadDriveVault instead

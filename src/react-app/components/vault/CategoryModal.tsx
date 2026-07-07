@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import type { CategoryDef } from "@/domain/types";
 import { useI18n } from "@/i18n";
 import { Button, Input, Modal, ModalHeader, ModalBody, ModalFooter, SectionLabel, cn, IconButton } from "../ui";
-import { ICON_LIST } from "./CategoryIcon";
+import { ICON_LIST } from "./icon-list";
 
 // Max size for uploaded images (bytes). Base64 overhead adds ~33%.
 const MAX_IMAGE_BYTES = 200 * 1024; // 200 KB

@@ -65,7 +65,8 @@ export default function EntryModal({
     const confirmDeleteProp = () => {
         if (!pendingDeleteProp) return;
         const key = pendingDeleteProp;
-        const { [key]: _, ...rest } = local.customProperties;
+        const rest = { ...local.customProperties };
+        delete rest[key];
         set("customProperties", rest);
         if (local.category) onDropCustomPropInCategory(key, local.category);
         setPendingDeleteProp(null);

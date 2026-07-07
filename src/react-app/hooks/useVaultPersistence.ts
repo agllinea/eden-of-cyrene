@@ -31,10 +31,14 @@ export function useVaultPersistence({ vault, session, phase, onMergedFromRemote 
 	const [driveLinked, setDriveLinked] = useState(() => !!getDriveFileId(vault.createdAt));
 	const [driveState, setDriveState] = useState<DriveState>("idle");
 
-	// Sync driveLinked whenever the vault identity changes (new vault opened).
-	useEffect(() => {
+	// Re-derive driveLinked when the vault identity changes (new vault opened).
+	// Adjusting state during render (React's recommended alternative to a
+	// setState-in-effect) avoids a render with the stale link status.
+	const [seenCreatedAt, setSeenCreatedAt] = useState(vault.createdAt);
+	if (vault.createdAt !== seenCreatedAt) {
+		setSeenCreatedAt(vault.createdAt);
 		setDriveLinked(!!getDriveFileId(vault.createdAt));
-	}, [vault.createdAt]);
+	}
 
 	// Called from useVaultApp after linkVaultToDrive or unlinkVaultFromDrive.
 	const refreshDriveLink = useCallback((vaultId: string) => {

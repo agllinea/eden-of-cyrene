@@ -3,7 +3,8 @@ import { motion } from "motion/react";
 
 import { useI18n } from "@/i18n";
 import { Button, FloatingInput, FloatingPasswordInput } from "../ui";
-import { App, Card, cardMotion } from "./shared";
+import { App, Card } from "./shared";
+import { cardMotion } from "./cardMotion";
 
 export function SetupPasswordCard({ app }: { app: App }) {
 	const { t } = useI18n();

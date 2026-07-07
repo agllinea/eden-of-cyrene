@@ -3,7 +3,8 @@ import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
 import { IconButton } from "../ui";
-import { Card, cardMotion } from "./shared";
+import { Card } from "./shared";
+import { cardMotion } from "./cardMotion";
 
 export interface VaultSourceRow {
 	key: string;

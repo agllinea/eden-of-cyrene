@@ -1,31 +1,18 @@
 import {
-	createContext,
 	useCallback,
-	useContext,
 	useRef,
 	useState,
 } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { IconButton } from "./button";
+import { ToastContext } from "./toast-context";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface ToastItem {
 	id: string;
 	message: string;
-}
-
-interface ToastContextValue {
-	addToast: (message: string) => void;
-}
-
-// ── Context ───────────────────────────────────────────────────────────────────
-
-const ToastContext = createContext<ToastContextValue>({ addToast: () => {} });
-
-export function useToast() {
-	return useContext(ToastContext);
 }
 
 // ── Provider ──────────────────────────────────────────────────────────────────

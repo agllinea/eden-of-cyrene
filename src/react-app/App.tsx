@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { useVaultApp } from "@/hooks/useVaultApp";
 import AuthFlow from "@/components/auth/AuthFlow";
 import VaultPage from "@/components/vault/VaultPage";
-import { ToastProvider, useToast } from "@/components/Toaster";
+import { ToastProvider } from "@/components/Toaster";
+import { useToast } from "@/components/toast-context";
 import { useI18n } from "@/i18n";
 
 function AppContent() {

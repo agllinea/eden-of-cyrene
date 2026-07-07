@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import { useToast } from "@/components/Toaster";
+import { useToast } from "@/components/toast-context";
 import { useI18n } from "@/i18n";
 
 /** Copy text to the clipboard with a localized toast. Returns success. */
